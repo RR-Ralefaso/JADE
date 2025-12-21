@@ -3,3 +3,4 @@ opencv-python
 torch
 torchvision
 numpy
+intel-extension-for-pytorch
