@@ -1,7 +1,0 @@
-{
-  "sample_rate": 16000,
-  "channels": 1,
-  "dtype": "int16",
-  "samples": 31744,
-  "duration": 1.984
-}
