@@ -2,13 +2,13 @@ import os
 import json
 from datetime import datetime
 import logging
-import config  # Changed from: from config import LOG_FILE, MAX_LOG_SIZE_MB
+from config import LOG_FILE, MAX_LOG_SIZE_MB  # Import directly
 
 class DetectionLogger:
     def __init__(self):
         """Initialize detection logger with rotation support"""
-        self.log_file = config.LOG_FILE  # Changed
-        self.max_size_mb = config.MAX_LOG_SIZE_MB  # Changed
+        self.log_file = LOG_FILE
+        self.max_size_mb = MAX_LOG_SIZE_MB
         self._setup_logging()
         self._check_log_rotation()
         
