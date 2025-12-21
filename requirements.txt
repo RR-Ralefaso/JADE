@@ -10,3 +10,5 @@ openvino
 psutil
 tqdm
 py-cpuinfo
+pandas
+colorama

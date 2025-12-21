@@ -1,282 +1,386 @@
-JADE_KNOWLEDGE = {
+
+ENHANCED_KNOWLEDGE = {
     "person": {
         "info": "Human being. Most common object in COCO dataset.",
         "value": "Priceless. People are the most valuable asset.",
-        "tip": "Track multiple people with unique IDs for crowd analysis."
+        "tip": "Track multiple people with unique IDs for crowd analysis.",
+        "brands": ["N/A", "Human"],
+        "conditions": ["active", "stationary", "resting"],
+        "materials": ["clothing_varied"],
+        "estimated_value": "Priceless",
+        "maintenance": "Proper nutrition, exercise, healthcare",
+        "rarity": "Common",
+        "authenticity_indicators": ["normal proportions", "natural movement"]
     },
+    
     "bicycle": {
         "info": "Two-wheeled pedal vehicle. Eco-friendly transport.",
         "value": "Check brand: Trek, Specialized = higher resale.",
-        "tip": "Carbon fiber frames are lighter but more expensive."
+        "tip": "Carbon fiber frames are lighter but more expensive.",
+        "brands": ["Trek", "Specialized", "Giant", "Cannondale", "Santa Cruz"],
+        "conditions": ["new", "like_new", "used", "needs_repair", "vintage"],
+        "materials": ["aluminum", "carbon_fiber", "steel", "titanium"],
+        "estimated_value": "$200 - $12,000",
+        "maintenance": "Chain lubrication, brake adjustment, tire pressure",
+        "rarity": "Common",
+        "authenticity_indicators": ["brand logos", "serial numbers", "quality welds"]
     },
+    
     "car": {
         "info": "Four-wheeled motor vehicle. Most common personal transport.",
         "value": "Check make/model/year. Luxury brands = premium value.",
-        "tip": "Low mileage + clean title = best resale value."
+        "tip": "Low mileage + clean title = best resale value.",
+        "brands": ["Toyota", "Honda", "Ford", "BMW", "Mercedes", "Tesla"],
+        "conditions": ["showroom", "excellent", "good", "fair", "poor", "salvage"],
+        "materials": ["steel", "aluminum", "carbon_fiber"],
+        "estimated_value": "$5,000 - $300,000+",
+        "maintenance": "Regular oil changes, tire rotation, brake service",
+        "rarity": "Common to Rare (depending on model)",
+        "authenticity_indicators": ["VIN number", "original parts", "service records"]
     },
-    "motorcycle": {
-        "info": "Two-wheeled motor vehicle. High performance transport.",
-        "value": "Sport bikes > cruisers for resale. Check engine size.",
-        "tip": "Low miles + recent service records = valuable."
-    },
-    "airplane": {
-        "info": "Fixed-wing aircraft. Commercial or private aviation.",
-        "value": "Private jets extremely valuable. Check airframe hours.",
-        "tip": "Fresh paint + avionics upgrades = higher value."
-    },
-    "bus": {
-        "info": "Large public transport vehicle. Carries 40-60 passengers.",
-        "value": "School buses cheap. Luxury tour buses valuable.",
-        "tip": "Low rust + recent engine = good condition."
-    },
-    "train": {
-        "info": "Rail transport vehicle. High-capacity passenger/cargo.",
-        "value": "Model trains collectible. Full-size = industrial value.",
-        "tip": "Vintage locomotives extremely valuable to collectors."
-    },
-    "truck": {
-        "info": "Large goods vehicle. Commercial transport/logistics.",
-        "value": "Heavy-duty trucks valuable for work. Check payload.",
-        "tip": "Low miles + strong diesel engine = premium."
-    },
-    "boat": {
-        "info": "Watercraft. Recreational or commercial vessel.",
-        "value": "Yachts extremely valuable. Check hull condition.",
-        "tip": "Fiberglass hulls easier to maintain than wood."
-    },
-    "traffic light": {
-        "info": "Road traffic control signal. Red/Yellow/Green.",
-        "value": "Infrastructure equipment. City property.",
-        "tip": "LED lights more energy-efficient than incandescent."
-    },
-    "fire hydrant": {
-        "info": "Water pipe connection for firefighters.",
-        "value": "Municipal infrastructure. Not for sale.",
-        "tip": "Yellow hydrants = private property in some areas."
-    },
-    "stop sign": {
-        "info": "Octagonal red traffic sign. Universal 'STOP'.",
-        "value": "Collectible vintage signs valuable to collectors.",
-        "tip": "Original porcelain signs worth $1000+."
-    },
-    "parking meter": {
-        "info": "Coin-operated parking time payment device.",
-        "value": "Vintage mechanical meters collectible.",
-        "tip": "Digital meters replacing mechanical nationwide."
-    },
-    "bench": {
-        "info": "Long seat for multiple people. Park/public furniture.",
-        "value": "Antique wooden benches valuable.",
-        "tip": "Teak/cedar wood benches weather-resistant."
-    },
-    "bird": {
-        "info": "Feathered vertebrate. 10,000+ species worldwide.",
-        "value": "Rare parrots/exotic birds extremely valuable.",
-        "tip": "Check for leg bands = captive bred vs wild."
-    },
-    "cat": {
-        "info": "Domestic feline. Independent companion animal.",
-        "value": "Purebred breeds (Maine Coon, Bengal) valuable.",
-        "tip": "Check pedigree papers for breeding value."
-    },
-    "dog": {
-        "info": "Domestic canine. Loyal companion and working dog.",
-        "value": "Purebreds (French Bulldog, Labrador) high value.",
-        "tip": "AKC papers + health clearances = premium."
-    },
-    "horse": {
-        "info": "Large equine mammal. Used for riding/racing/work.",
-        "value": "Racehorses can be worth millions.",
-        "tip": "Check pedigree + racing history for value."
-    },
-    "sheep": {
-        "info": "Wool-producing livestock. Farm/ranch animal.",
-        "value": "Merino sheep valuable for premium wool.",
-        "tip": "Healthy coat + strong frame = good breeding stock."
-    },
-    "cow": {
-        "info": "Bovine livestock. Beef and dairy production.",
-        "value": "Holstein dairy cows + Angus beef cows premium.",
-        "tip": "Check milk production records for dairy value."
-    },
-    "elephant": {
-        "info": "Largest land mammal. African/Asian species.",
-        "value": "Protected species. Cannot be traded.",
-        "tip": "Ivory trade illegal worldwide."
-    },
-    "bear": {
-        "info": "Large carnivorous mammal. 8 species worldwide.",
-        "value": "Protected. Illegal to hunt/trade in most countries.",
-        "tip": "Polar bears most endangered."
-    },
-    "zebra": {
-        "info": "Striped African equine. 3 species.",
-        "value": "Protected wildlife. Zoo value only.",
-        "tip": "Unique stripe patterns like fingerprints."
-    },
-    "giraffe": {
-        "info": "Tallest land animal. African savanna resident.",
-        "value": "Protected species. Zoo conservation value.",
-        "tip": "Tongue 18-20 inches long for browsing."
-    },
+    
     "backpack": {
         "info": "Carried bag with straps. School/travel essential.",
         "value": "Brand name (Patagonia, North Face) = higher resale.",
-        "tip": "Check zippers + fabric condition."
+        "tip": "Check zippers + fabric condition.",
+        "brands": ["Patagonia", "North Face", "Jansport", "Osprey", "Herschel"],
+        "conditions": ["new", "excellent", "good", "worn", "damaged"],
+        "materials": ["nylon", "polyester", "canvas", "leather"],
+        "estimated_value": "$20 - $500",
+        "maintenance": "Spot clean, avoid overloading, store empty",
+        "rarity": "Common",
+        "authenticity_indicators": ["brand tags", "quality stitching", "material feel"]
     },
-    "umbrella": {
-        "info": "Portable rain/sun protection canopy.",
-        "value": "High-end brands (Blunt, GustBuster) durable.",
-        "tip": "Fiberglass ribs stronger than steel."
-    },
+    
     "handbag": {
         "info": "Women's fashion accessory. Status symbol.",
         "value": "Designer brands (Louis Vuitton, Gucci) thousands.",
-        "tip": "Check serial numbers for authenticity."
+        "tip": "Check serial numbers for authenticity.",
+        "brands": ["Louis Vuitton", "Gucci", "Chanel", "Prada", "Hermes"],
+        "conditions": ["brand_new", "excellent", "good", "fair", "poor"],
+        "materials": ["leather", "canvas", "suede", "exotic_skins"],
+        "estimated_value": "$100 - $50,000+",
+        "maintenance": "Store with stuffing, avoid moisture, condition leather",
+        "rarity": "Common to Ultra Rare",
+        "authenticity_indicators": ["serial numbers", "quality hardware", "stitching pattern"]
     },
-    "tie": {
-        "info": "Neckwear for formal occasions. Business attire.",
-        "value": "Silk Hermes/Versace ties collectible.",
-        "tip": "Hand-stitched labels = authentic luxury."
+    
+    "laptop": {
+        "info": "Portable computer for work/entertainment.",
+        "value": "Apple MacBooks hold value best.",
+        "tip": "Check battery cycle count for MacBooks.",
+        "brands": ["Apple", "Dell", "HP", "Lenovo", "Microsoft", "Asus"],
+        "conditions": ["sealed", "like_new", "used", "refurbished", "broken"],
+        "materials": ["aluminum", "plastic", "magnesium_alloy"],
+        "estimated_value": "$200 - $5,000",
+        "maintenance": "Regular updates, clean vents, proper charging",
+        "rarity": "Common",
+        "authenticity_indicators": ["serial numbers", "OS authenticity", "build quality"]
     },
-    "suitcase": {
-        "info": "Rigid travel luggage. Carry-on or checked.",
-        "value": "Samsonite/Tumi high durability = good resale.",
-        "tip": "Polycarbonate shells more impact-resistant."
+    
+    "cell phone": {
+        "info": "Mobile communication device.",
+        "value": "Latest iPhones/Samsungs = highest resale.",
+        "tip": "Check IMEI for blacklist status.",
+        "brands": ["Apple", "Samsung", "Google", "OnePlus", "Xiaomi"],
+        "conditions": ["sealed", "mint", "good", "fair", "broken"],
+        "materials": ["glass", "aluminum", "plastic"],
+        "estimated_value": "$50 - $1,500",
+        "maintenance": "Use case, avoid extreme temps, proper charging",
+        "rarity": "Common",
+        "authenticity_indicators": ["IMEI check", "original box", "software authenticity"]
     },
-    "frisbee": {
-        "info": "Plastic flying disc. Outdoor recreation toy.",
-        "value": "Vintage Discraft/Wham-O collectible.",
-        "tip": "Weighted rims = better flight control."
-    },
-    "skis": {
-        "info": "Long narrow snow equipment. Alpine/cross-country.",
-        "value": "Carbon fiber skis lightweight + expensive.",
-        "tip": "Check base wax condition for performance."
-    },
-    "snowboard": {
-        "info": "Single wide snow board. Freestyle/all-mountain.",
-        "value": "Burton/Lib Tech premium brands.",
-        "tip": "Camber/rocker profile affects riding style."
-    },
-    "sports ball": {
-        "info": "Spherical game equipment. Soccer/basketball/etc.",
-        "value": "Signed pro balls valuable to collectors.",
-        "tip": "Proper inflation = best performance."
-    },
-    "kite": {
-        "info": "Tethered lighter-than-air craft. Wind-powered.",
-        "value": "Stunt kites + large traction kites expensive.",
-        "tip": "Dual-line control = acrobatic maneuvers."
-    },
-    "baseball bat": {
-        "info": "Wood/aluminum/composite hitting tool.",
-        "value": "Game-used MLB bats thousands of dollars.",
-        "tip": "Ash wood most popular in professional play."
-    },
-    "baseball glove": {
-        "info": "Leather fielding mitt/catcher's mitt.",
-        "value": "Vintage Rawlings/Wilson pro model valuable.",
-        "tip": "Well-oiled leather = better performance."
-    },
-    "skateboard": {
-        "info": "Four-wheeled board. Street/park/ramp riding.",
-        "value": "Girl/Chocolate pro models collectible.",
-        "tip": "Trucks + wheel durometer affect ride quality."
-    },
-    "surfboard": {
-        "info": "Long/shortboard for wave riding.",
-        "value": "Custom shapes by master shapers valuable.",
-        "tip": "Epoxy boards more durable than polyurethane."
-    },
-    "tennis racket": {
-        "info": "Oval-headed strung bat for tennis.",
-        "value": "Wilson Blade/Babolat Pure Drive pro level.",
-        "tip": "String tension affects power/control."
-    },
+    
     "bottle": {
         "info": "Glass/plastic liquid container.",
         "value": "Vintage glass bottles collectible.",
-        "tip": "Recyclable materials increasingly valuable."
+        "tip": "Recyclable materials increasingly valuable.",
+        "brands": ["Hydro Flask", "Yeti", "Nalgene", "CamelBak", "S'well"],
+        "conditions": ["new", "used", "scratched", "damaged"],
+        "materials": ["stainless_steel", "plastic", "glass", "aluminum"],
+        "estimated_value": "$5 - $100",
+        "maintenance": "Regular cleaning, avoid drops",
+        "rarity": "Common",
+        "authenticity_indicators": ["brand markings", "material quality", "weight"]
     },
-    "wine glass": {
-        "info": "Stemmed glass for wine serving.",
-        "value": "Crystal Riedel glasses optimized for varietals.",
-        "tip": "Thin rims enhance tasting experience."
+    
+    "chair": {
+        "info": "Furniture for sitting.",
+        "value": "Designer/antique chairs = high value.",
+        "tip": "Check joints and upholstery condition.",
+        "brands": ["Herman Miller", "Steelcase", "IKEA", "Eames", "Knoll"],
+        "conditions": ["new", "excellent", "good", "fair", "poor"],
+        "materials": ["wood", "metal", "plastic", "fabric", "leather"],
+        "estimated_value": "$20 - $5,000+",
+        "maintenance": "Clean regularly, tighten joints, condition materials",
+        "rarity": "Common to Rare",
+        "authenticity_indicators": ["brand markings", "construction quality", "material authenticity"]
     },
-    "cup": {
-        "info": "Handleless drinking vessel. Coffee/tea.",
-        "value": "Vintage Pyrex/Fiestaware collectible.",
-        "tip": "Double-walled = temperature insulation."
+    
+    "book": {
+        "info": "Printed or written work.",
+        "value": "First editions/signed copies = premium.",
+        "tip": "Check for signatures and edition numbers.",
+        "brands": ["Various publishers"],
+        "conditions": ["new", "like_new", "used", "worn", "collectible"],
+        "materials": ["paper", "leather", "cloth"],
+        "estimated_value": "$1 - $10,000+",
+        "maintenance": "Store upright, avoid moisture/sunlight",
+        "rarity": "Common to Ultra Rare",
+        "authenticity_indicators": ["ISBN", "printing details", "signature verification"]
     },
-    "fork": {
-        "info": "Four-tined eating utensil.",
-        "value": "Sterling silver flatware sets valuable.",
-        "tip": "Check hallmarks for silver purity."
+    
+    "clock": {
+        "info": "Time-keeping device.",
+        "value": "Antique/vintage clocks collectible.",
+        "tip": "Check if mechanical works.",
+        "brands": ["Rolex", "Omega", "Seiko", "Cartier", "Grandfather clocks"],
+        "conditions": ["new", "vintage", "antique", "needs_repair", "working"],
+        "materials": ["wood", "metal", "plastic", "glass"],
+        "estimated_value": "$10 - $50,000+",
+        "maintenance": "Regular winding, professional servicing",
+        "rarity": "Common to Rare",
+        "authenticity_indicators": ["brand markings", "movement quality", "serial numbers"]
     },
-    "knife": {
-        "info": "Bladed cutting utensil. Kitchen/utility.",
-        "value": "High-carbon steel knives hold edge longer.",
-        "tip": "Full tang construction = most durable."
-    },
-    "spoon": {
-        "info": "Concave eating utensil for liquids.",
-        "value": "Antique silver spoons collectible.",
-        "tip": "Weighted spoons feel more substantial."
-    },
-    "bowl": {
-        "info": "Round deep serving vessel.",
-        "value": "Fiestaware/Depression glass collectible.",
-        "tip": "Porcelain more durable than ceramic."
-    },
-    "banana": {
-        "info": "Curved tropical fruit. High potassium.",
-        "value": "Organic + fair trade = premium pricing.",
-        "tip": "Riper = sweeter flavor profile."
-    },
-    "apple": {
-        "info": "Pome fruit. 7,500 varieties worldwide.",
-        "value": "Heirloom varieties rare/valuable.",
-        "tip": "Wax-free organic apples healthier."
-    },
-    "sandwich": {
-        "info": "Two slices bread with filling.",
-        "value": "Artisan breads elevate basic sandwich.",
-        "tip": "Toasted bread prevents sogginess."
-    },
-    "orange": {
-        "info": "Citrus fruit. High vitamin C.",
-        "value": "Navel/Valencia varieties most common.",
-        "tip": "Heavy oranges = more juice content."
-    },
-    "broccoli": {
-        "info": "Green cruciferous vegetable. Cancer-fighting.",
-        "value": "Organic broccoli pesticide-free.",
-        "tip": "Bright green = freshest quality."
-    },
-    "carrot": {
-        "info": "Root vegetable. High in beta-carotene.",
-        "value": "Heirloom varieties more flavorful.",
-        "tip": "Baby carrots actually mature carrots."
-    },
-    "hot dog": {
-        "info": "Sausage in bun. American street food.",
-        "value": "All-beef + natural casing = premium.",
-        "tip": "Snap indicates natural casing quality."
-    },
-    "pizza": {
-        "info": "Flatbread with tomato sauce + cheese.",
-        "value": "Neapolitan wood-fired = gourmet pricing.",
-        "tip": "High-quality San Marzano tomatoes key."
-    },
-    "donut": {
-        "info": "Fried sweet dough ring.",
-        "value": "Krispy Kreme fresh glazed unbeatable.",
-        "tip": "Hot + fresh = peak flavor experience."
-    },
-    "cake": {
-        "info": "Sweet baked dessert. Layered/iced.",
-        "value": "Wedding cakes $5+/serving.",
-        "tip": "Room temperature = best texture."
+    
+    "vase": {
+        "info": "Ornamental container.",
+        "value": "Antique/designer vases = high value.",
+        "tip": "Check for chips/cracks and maker's marks.",
+        "brands": ["Royal Copenhagen", "Wedgwood", "Meissen", "Ming dynasty"],
+        "conditions": ["perfect", "excellent", "good", "damaged", "antique"],
+        "materials": ["porcelain", "ceramic", "glass", "crystal"],
+        "estimated_value": "$10 - $100,000+",
+        "maintenance": "Handle carefully, dust regularly",
+        "rarity": "Common to Ultra Rare",
+        "authenticity_indicators": ["maker's marks", "age signs", "material quality"]
     }
 }
+
+CONDITION_ASSESSMENT = {
+    "excellent": {
+        "score": 9,
+        "description": "Near perfect, minimal signs of use",
+        "value_multiplier": 0.9,
+        "visual_indicators": ["minimal wear", "clean", "no damage"]
+    },
+    "good": {
+        "score": 7,
+        "description": "Normal wear, fully functional",
+        "value_multiplier": 0.7,
+        "visual_indicators": ["light wear", "minor scuffs", "fully functional"]
+    },
+    "fair": {
+        "score": 5,
+        "description": "Visible wear, needs attention",
+        "value_multiplier": 0.5,
+        "visual_indicators": ["noticeable wear", "minor damage", "functional"]
+    },
+    "poor": {
+        "score": 3,
+        "description": "Significant wear/damage",
+        "value_multiplier": 0.3,
+        "visual_indicators": ["heavy wear", "damage present", "may need repair"]
+    }
+}
+
+MATERIAL_VALUE_IMPACT = {
+    "gold": 5.0,
+    "platinum": 4.5,
+    "diamond": 4.0,
+    "carbon_fiber": 3.0,
+    "titanium": 2.5,
+    "leather": 2.0,
+    "silver": 1.8,
+    "stainless_steel": 1.5,
+    "aluminum": 1.3,
+    "glass": 1.2,
+    "porcelain": 1.5,
+    "wood": 1.0,
+    "plastic": 0.8,
+    "paper": 0.5
+}
+
+def analyze_object_visual_features(frame, bbox, object_type):
+    """
+    Analyze visual features of detected object
+    """
+    import cv2
+    import numpy as np
+    
+    x1, y1, x2, y2 = map(int, bbox)
+    obj_image = frame[y1:y2, x1:x2]
+    
+    if obj_image.size == 0:
+        return None
+    
+    features = {}
+    
+    # Basic color analysis
+    hsv = cv2.cvtColor(obj_image, cv2.COLOR_BGR2HSV)
+    
+    # Color dominance
+    colors, counts = np.unique(obj_image.reshape(-1, 3), axis=0, return_counts=True)
+    dominant_color = colors[np.argmax(counts)]
+    features['dominant_color'] = dominant_color.tolist()
+    
+    # Edge density (indicates texture/wear)
+    gray = cv2.cvtColor(obj_image, cv2.COLOR_BGR2GRAY)
+    edges = cv2.Canny(gray, 50, 150)
+    edge_density = np.sum(edges > 0) / (obj_image.shape[0] * obj_image.shape[1])
+    features['texture_density'] = float(edge_density)
+    
+    # Brightness/vibrancy
+    brightness = np.mean(gray)
+    features['brightness'] = float(brightness)
+    
+    # Color variance (indicates patterns/multiple colors)
+    color_variance = np.std(obj_image)
+    features['color_variance'] = float(color_variance)
+    
+    # Sharpness/blur
+    laplacian_var = cv2.Laplacian(gray, cv2.CV_64F).var()
+    features['sharpness'] = float(laplacian_var)
+    
+    return features
+
+def estimate_condition_from_features(features, object_type):
+    """
+    Estimate object condition based on visual features
+    """
+    if not features:
+        return "unknown", 0.5
+    
+    # Different condition indicators for different object types
+    condition_rules = {
+        "car": {
+            "excellent": features['sharpness'] > 100 and features['color_variance'] < 30,
+            "good": features['sharpness'] > 50,
+            "fair": features['sharpness'] > 20,
+            "poor": features['sharpness'] <= 20
+        },
+        "electronic": {
+            "excellent": features['sharpness'] > 150,
+            "good": features['sharpness'] > 80,
+            "fair": features['sharpness'] > 40,
+            "poor": features['sharpness'] <= 40
+        },
+        "furniture": {
+            "excellent": features['texture_density'] < 0.05,
+            "good": features['texture_density'] < 0.1,
+            "fair": features['texture_density'] < 0.2,
+            "poor": features['texture_density'] >= 0.2
+        },
+        "default": {
+            "excellent": features['sharpness'] > 100 and features['texture_density'] < 0.05,
+            "good": features['sharpness'] > 50,
+            "fair": features['sharpness'] > 20,
+            "poor": True
+        }
+    }
+    
+    # Determine object category
+    object_categories = {
+        "car": ["car", "truck", "bus", "motorcycle"],
+        "electronic": ["laptop", "cell phone", "tv", "remote", "keyboard", "mouse"],
+        "furniture": ["chair", "couch", "bed", "dining table"],
+        "default": []
+    }
+    
+    category = "default"
+    for cat, items in object_categories.items():
+        if object_type in items:
+            category = cat
+            break
+    
+    rules = condition_rules.get(category, condition_rules["default"])
+    
+    # Apply rules
+    if rules.get("excellent", False):
+        return "excellent", 0.9
+    elif rules.get("good", False):
+        return "good", 0.7
+    elif rules.get("fair", False):
+        return "fair", 0.5
+    else:
+        return "poor", 0.3
+
+def generate_detailed_report(object_type, condition, features=None, confidence=0.5):
+    """
+    Generate comprehensive report for any detected object
+    """
+    if object_type not in ENHANCED_KNOWLEDGE:
+        # Fallback to basic knowledge or generic report
+        return {
+            "object": object_type,
+            "info": f"A {object_type}. No detailed information available.",
+            "condition": condition,
+            "condition_score": 5,
+            "estimated_value": "Unknown",
+            "maintenance": "Handle with care",
+            "authenticity_tips": ["Check for obvious signs of quality"],
+            "analysis_confidence": confidence
+        }
+    
+    knowledge = ENHANCED_KNOWLEDGE[object_type]
+    condition_info = CONDITION_ASSESSMENT.get(condition, CONDITION_ASSESSMENT["good"])
+    
+    # Calculate value estimate
+    base_values = {
+        "car": 20000,
+        "laptop": 800,
+        "cell phone": 500,
+        "bicycle": 300,
+        "handbag": 200,
+        "backpack": 50,
+        "chair": 150,
+        "bottle": 25,
+        "book": 20,
+        "clock": 100,
+        "vase": 75,
+        "default": 100
+    }
+    
+    base_value = base_values.get(object_type, base_values["default"])
+    adjusted_value = base_value * condition_info["value_multiplier"]
+    
+    # Material impact
+    if "materials" in knowledge and knowledge["materials"][0] in MATERIAL_VALUE_IMPACT:
+        material_multiplier = MATERIAL_VALUE_IMPACT[knowledge["materials"][0]]
+        adjusted_value *= material_multiplier
+    
+    report = {
+        "object": object_type,
+        "info": knowledge["info"],
+        "condition": condition,
+        "condition_score": condition_info["score"],
+        "condition_description": condition_info["description"],
+        "estimated_value": f"${adjusted_value:,.2f}",
+        "value_range": knowledge.get("estimated_value", "Variable"),
+        "brands": knowledge.get("brands", ["Various"]),
+        "materials": knowledge.get("materials", ["Unknown"]),
+        "maintenance": knowledge.get("maintenance", "Handle with care"),
+        "authenticity_tips": knowledge.get("authenticity_indicators", ["Check overall quality"]),
+        "rarity": knowledge.get("rarity", "Unknown"),
+        "expert_tip": knowledge.get("tip", ""),
+        "analysis_confidence": confidence,
+        "visual_features": features if features else {}
+    }
+    
+    return report
+
+def format_report_for_display(report):
+    """
+    Format report for on-screen display
+    """
+    lines = []
+    
+    lines.append(f"📦 OBJECT: {report['object'].upper()}")
+    lines.append(f"📊 Condition: {report['condition'].upper()} ({report['condition_score']}/10)")
+    lines.append(f"💎 Estimated Value: {report['estimated_value']}")
+    lines.append(f"🏷️ Common Brands: {', '.join(report['brands'][:3])}")
+    lines.append(f"🔍 Info: {report['info']}")
+    lines.append(f"💡 Tip: {report['expert_tip']}")
+    lines.append(f"🛠️ Maintenance: {report['maintenance']}")
+    
+    return lines
