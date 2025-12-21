@@ -4,3 +4,9 @@ torch
 torchvision
 numpy
 intel-extension-for-pytorch
+numpy
+pillow
+openvino
+psutil
+tqdm
+py-cpuinfo
