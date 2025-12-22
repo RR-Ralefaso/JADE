@@ -1,0 +1,13 @@
+{
+  "date": "20251222",
+  "detection_summary": {
+    "total_frames": 0,
+    "total_objects": 0,
+    "unique_objects": []
+  },
+  "voice_summary": {
+    "total_commands": 0,
+    "commands_by_type": {}
+  },
+  "hourly_activity": {}
+}

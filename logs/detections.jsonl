@@ -347,3 +347,178 @@
 {"timestamp": "2025-12-21T23:48:51.823653", "detections": [], "frame_info": {"width": 400, "height": 480, "fps": 0}, "device_info": {}, "session_id": "7e01fe8b"}
 {"timestamp": "2025-12-21T23:48:51.895088", "detections": [], "frame_info": {"width": 400, "height": 480, "fps": 0}, "device_info": {}, "session_id": "7e01fe8b"}
 {"timestamp": "2025-12-21T23:48:51.967203", "detections": [], "frame_info": {"width": 400, "height": 480, "fps": 0}, "device_info": {}, "session_id": "7e01fe8b"}
+{"timestamp": "2025-12-22T14:43:40.603030", "event_type": "STARTUP", "details": "Session ae1a733f started"}
+2025-12-22 14:43:40,603 - root - INFO - System event: Session ae1a733f started
+{"timestamp": "2025-12-22T14:43:41.041542", "event_type": "INFO", "details": "Camera 2 initialized: 1280x720 @ 10.0fps"}
+2025-12-22 14:43:41,041 - root - INFO - System event: Camera 2 initialized: 1280x720 @ 10.0fps
+{"timestamp": "2025-12-22T14:43:41.041913", "event_type": "INFO", "details": "JADE system initialized successfully"}
+2025-12-22 14:43:41,041 - root - INFO - System event: JADE system initialized successfully
+{"timestamp": "2025-12-22T14:43:41.143325", "event_type": "INFO", "details": "Voice assistant started"}
+2025-12-22 14:43:41,143 - root - INFO - System event: Voice assistant started
+2025-12-22 14:43:43,411 - root - INFO - Statistics exported to reports/detection_stats.json
+2025-12-22 14:43:43,413 - root - INFO - Daily report generated for 20251222
+{"timestamp": "2025-12-22T14:43:43.413985", "event_type": "SHUTDOWN", "details": "Session ae1a733f ended"}
+2025-12-22 14:43:43,414 - root - INFO - System event: Session ae1a733f ended
+{"timestamp": "2025-12-22T14:43:54.054019", "event_type": "STARTUP", "details": "Session 7c19228d started"}
+2025-12-22 14:43:54,054 - root - INFO - System event: Session 7c19228d started
+{"timestamp": "2025-12-22T14:43:54.487537", "event_type": "INFO", "details": "Camera 2 initialized: 1280x720 @ 10.0fps"}
+2025-12-22 14:43:54,487 - root - INFO - System event: Camera 2 initialized: 1280x720 @ 10.0fps
+{"timestamp": "2025-12-22T14:43:54.487899", "event_type": "INFO", "details": "JADE system initialized successfully"}
+2025-12-22 14:43:54,487 - root - INFO - System event: JADE system initialized successfully
+{"timestamp": "2025-12-22T14:43:54.589501", "event_type": "INFO", "details": "Voice assistant started"}
+2025-12-22 14:43:54,589 - root - INFO - System event: Voice assistant started
+2025-12-22 14:43:56,885 - root - INFO - Statistics exported to reports/detection_stats.json
+2025-12-22 14:43:56,887 - root - INFO - Daily report generated for 20251222
+{"timestamp": "2025-12-22T14:43:56.887785", "event_type": "SHUTDOWN", "details": "Session 7c19228d ended"}
+2025-12-22 14:43:56,887 - root - INFO - System event: Session 7c19228d ended
+{"timestamp": "2025-12-22T14:44:22.534503", "event_type": "STARTUP", "details": "Session cd5a36b1 started"}
+2025-12-22 14:44:22,534 - root - INFO - System event: Session cd5a36b1 started
+{"timestamp": "2025-12-22T14:44:22.968421", "event_type": "INFO", "details": "Camera 2 initialized: 1280x720 @ 10.0fps"}
+2025-12-22 14:44:22,968 - root - INFO - System event: Camera 2 initialized: 1280x720 @ 10.0fps
+{"timestamp": "2025-12-22T14:44:22.968776", "event_type": "INFO", "details": "JADE system initialized successfully"}
+2025-12-22 14:44:22,968 - root - INFO - System event: JADE system initialized successfully
+{"timestamp": "2025-12-22T14:44:23.070258", "event_type": "INFO", "details": "Voice assistant started"}
+2025-12-22 14:44:23,070 - root - INFO - System event: Voice assistant started
+2025-12-22 14:44:25,294 - root - INFO - Statistics exported to reports/detection_stats.json
+2025-12-22 14:44:25,297 - root - INFO - Daily report generated for 20251222
+{"timestamp": "2025-12-22T14:44:25.297554", "event_type": "SHUTDOWN", "details": "Session cd5a36b1 ended"}
+2025-12-22 14:44:25,297 - root - INFO - System event: Session cd5a36b1 ended
+{"timestamp": "2025-12-22T14:54:24.278246", "detections": [], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "1fd93374", "analysis_mode": "basic"}
+{"timestamp": "2025-12-22T14:54:24.574111", "detections": [], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "1fd93374", "analysis_mode": "basic"}
+{"timestamp": "2025-12-22T14:54:24.679648", "detections": [], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "1fd93374", "analysis_mode": "basic"}
+{"timestamp": "2025-12-22T14:54:24.775967", "detections": [], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "1fd93374", "analysis_mode": "basic"}
+{"timestamp": "2025-12-22T14:54:24.874789", "detections": [{"class_name": "person", "confidence": 0.4370880722999573, "bbox": [297, 569, 403, 639], "class_id": 0, "area": 7425.94580078125, "center": [350, 604]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "1fd93374", "analysis_mode": "basic"}
+2025-12-22 14:54:24,874 - root - INFO - Detected: person (0.44) at [297, 569, 403, 639]
+{"timestamp": "2025-12-22T14:54:25.824387", "detections": [{"class_name": "person", "confidence": 0.5770987868309021, "bbox": [296, 568, 403, 639], "class_id": 0, "area": 7588.25244140625, "center": [350, 604]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "1fd93374", "analysis_mode": "basic"}
+2025-12-22 14:54:25,824 - root - INFO - Detected: person (0.58) at [296, 568, 403, 639]
+{"timestamp": "2025-12-22T14:54:26.654984", "detections": [{"class_name": "person", "confidence": 0.5111807584762573, "bbox": [295, 569, 403, 639], "class_id": 0, "area": 7588.599609375, "center": [349, 604]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "1fd93374", "analysis_mode": "basic"}
+2025-12-22 14:54:26,655 - root - INFO - Detected: person (0.51) at [295, 569, 403, 639]
+{"timestamp": "2025-12-22T14:54:27.651912", "detections": [{"class_name": "person", "confidence": 0.3864080011844635, "bbox": [296, 568, 403, 639], "class_id": 0, "area": 7587.4580078125, "center": [349, 604]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "1fd93374", "analysis_mode": "basic"}
+2025-12-22 14:54:27,652 - root - INFO - Detected: person (0.39) at [296, 568, 403, 639]
+{"timestamp": "2025-12-22T14:54:28.707953", "detections": [], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "1fd93374", "analysis_mode": "basic"}
+{"timestamp": "2025-12-22T14:54:28.806372", "detections": [{"class_name": "person", "confidence": 0.34265589714050293, "bbox": [294, 568, 403, 639], "class_id": 0, "area": 7794.046875, "center": [348, 604]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "1fd93374", "analysis_mode": "basic"}
+2025-12-22 14:54:28,806 - root - INFO - Detected: person (0.34) at [294, 568, 403, 639]
+{"timestamp": "2025-12-22T14:54:29.783727", "detections": [], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "1fd93374", "analysis_mode": "basic"}
+{"timestamp": "2025-12-22T14:54:29.880586", "detections": [], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "1fd93374", "analysis_mode": "basic"}
+{"timestamp": "2025-12-22T14:54:29.976278", "detections": [{"class_name": "person", "confidence": 0.7720616459846497, "bbox": [1, 145, 639, 637], "class_id": 0, "area": 313547.78125, "center": [320, 391]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "1fd93374", "analysis_mode": "basic"}
+2025-12-22 14:54:29,976 - root - INFO - Detected: person (0.77) at [1, 145, 639, 637]
+{"timestamp": "2025-12-22T14:54:31.550475", "detections": [{"class_name": "person", "confidence": 0.8358997106552124, "bbox": [1, 92, 639, 639], "class_id": 0, "area": 348700.3125, "center": [320, 365]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "1fd93374", "analysis_mode": "basic"}
+2025-12-22 14:54:31,550 - root - INFO - Detected: person (0.84) at [1, 92, 639, 639]
+{"timestamp": "2025-12-22T14:54:33.362372", "detections": [{"class_name": "person", "confidence": 0.8536502718925476, "bbox": [0, 108, 640, 638], "class_id": 0, "area": 338743.25, "center": [320, 373]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "1fd93374", "analysis_mode": "basic"}
+2025-12-22 14:54:33,362 - root - INFO - Detected: person (0.85) at [0, 108, 640, 638]
+{"timestamp": "2025-12-22T14:54:35.157768", "detections": [{"class_name": "person", "confidence": 0.8220263719558716, "bbox": [2, 106, 639, 639], "class_id": 0, "area": 339648.5625, "center": [320, 372]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "1fd93374", "analysis_mode": "basic"}
+2025-12-22 14:54:35,157 - root - INFO - Detected: person (0.82) at [2, 106, 639, 639]
+{"timestamp": "2025-12-22T14:54:36.960784", "detections": [{"class_name": "person", "confidence": 0.8172561526298523, "bbox": [58, 123, 640, 640], "class_id": 0, "area": 299991.46875, "center": [349, 381]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "1fd93374", "analysis_mode": "basic"}
+2025-12-22 14:54:36,960 - root - INFO - Detected: person (0.82) at [58, 123, 640, 640]
+{"timestamp": "2025-12-22T14:54:38.686004", "detections": [{"class_name": "person", "confidence": 0.8337336182594299, "bbox": [2, 131, 640, 638], "class_id": 0, "area": 323607.71875, "center": [321, 384]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "1fd93374", "analysis_mode": "basic"}
+2025-12-22 14:54:38,686 - root - INFO - Detected: person (0.83) at [2, 131, 640, 638]
+{"timestamp": "2025-12-22T14:54:40.517140", "detections": [{"class_name": "person", "confidence": 0.8439277410507202, "bbox": [3, 127, 640, 638], "class_id": 0, "area": 325776.1875, "center": [321, 382]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "1fd93374", "analysis_mode": "basic"}
+2025-12-22 14:54:40,517 - root - INFO - Detected: person (0.84) at [3, 127, 640, 638]
+{"timestamp": "2025-12-22T14:54:42.457265", "detections": [{"class_name": "person", "confidence": 0.865134596824646, "bbox": [2, 128, 640, 638], "class_id": 0, "area": 325573.0625, "center": [321, 383]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "1fd93374", "analysis_mode": "basic"}
+2025-12-22 14:54:42,457 - root - INFO - Detected: person (0.87) at [2, 128, 640, 638]
+{"timestamp": "2025-12-22T14:54:44.389257", "detections": [{"class_name": "person", "confidence": 0.8887206315994263, "bbox": [2, 122, 639, 639], "class_id": 0, "area": 329714.4375, "center": [321, 380]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "1fd93374", "analysis_mode": "basic"}
+2025-12-22 14:54:44,389 - root - INFO - Detected: person (0.89) at [2, 122, 639, 639]
+{"timestamp": "2025-12-22T14:54:46.311451", "detections": [{"class_name": "person", "confidence": 0.8551782965660095, "bbox": [1, 124, 639, 638], "class_id": 0, "area": 327817.59375, "center": [320, 381]}, {"class_name": "tie", "confidence": 0.3348582088947296, "bbox": [298, 520, 373, 636], "class_id": 27, "area": 8691.5048828125, "center": [336, 578]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "1fd93374", "analysis_mode": "basic"}
+2025-12-22 14:54:46,311 - root - INFO - Detected: person (0.86) at [1, 124, 639, 638]
+2025-12-22 14:54:46,311 - root - INFO - Detected: tie (0.33) at [298, 520, 373, 636]
+{"timestamp": "2025-12-22T14:54:49.558724", "detections": [{"class_name": "person", "confidence": 0.8941686153411865, "bbox": [1, 129, 639, 638], "class_id": 0, "area": 324534.4375, "center": [320, 383]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "1fd93374", "analysis_mode": "basic"}
+2025-12-22 14:54:49,558 - root - INFO - Detected: person (0.89) at [1, 129, 639, 638]
+{"timestamp": "2025-12-22T14:54:51.357440", "detections": [{"class_name": "person", "confidence": 0.7839879989624023, "bbox": [1, 128, 639, 638], "class_id": 0, "area": 325050.125, "center": [320, 383]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "1fd93374", "analysis_mode": "basic"}
+2025-12-22 14:54:51,357 - root - INFO - Detected: person (0.78) at [1, 128, 639, 638]
+{"timestamp": "2025-12-22T14:54:53.195677", "detections": [{"class_name": "person", "confidence": 0.8286809325218201, "bbox": [1, 132, 639, 637], "class_id": 0, "area": 322058.3125, "center": [320, 385]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "1fd93374", "analysis_mode": "basic"}
+2025-12-22 14:54:53,195 - root - INFO - Detected: person (0.83) at [1, 132, 639, 637]
+{"timestamp": "2025-12-22T14:54:54.953440", "detections": [{"class_name": "person", "confidence": 0.7590729594230652, "bbox": [1, 173, 637, 638], "class_id": 0, "area": 296206.5625, "center": [319, 406]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "1fd93374", "analysis_mode": "basic"}
+2025-12-22 14:54:54,953 - root - INFO - Detected: person (0.76) at [1, 173, 637, 638]
+{"timestamp": "2025-12-22T14:54:56.798511", "detections": [{"class_name": "person", "confidence": 0.6027016639709473, "bbox": [0, 138, 637, 637], "class_id": 0, "area": 318086.8125, "center": [319, 388]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "1fd93374", "analysis_mode": "basic"}
+2025-12-22 14:54:56,798 - root - INFO - Detected: person (0.60) at [0, 138, 637, 637]
+{"timestamp": "2025-12-22T14:55:39.919382", "detections": [{"class_name": "person", "confidence": 0.4448486864566803, "bbox": [4, 3, 639, 637], "class_id": 0, "area": 402996.34375, "center": [321, 320]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "71cffb29", "analysis_mode": "basic"}
+2025-12-22 14:55:39,919 - root - INFO - Detected: person (0.44) at [4, 3, 639, 637]
+{"timestamp": "2025-12-22T14:55:41.942477", "detections": [{"class_name": "person", "confidence": 0.757292628288269, "bbox": [1, 0, 639, 637], "class_id": 0, "area": 406211.5625, "center": [320, 318]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "71cffb29", "analysis_mode": "basic"}
+2025-12-22 14:55:41,942 - root - INFO - Detected: person (0.76) at [1, 0, 639, 637]
+{"timestamp": "2025-12-22T14:55:43.777419", "detections": [{"class_name": "person", "confidence": 0.7287091016769409, "bbox": [2, 3, 639, 637], "class_id": 0, "area": 403293.59375, "center": [320, 320]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "71cffb29", "analysis_mode": "basic"}
+2025-12-22 14:55:43,777 - root - INFO - Detected: person (0.73) at [2, 3, 639, 637]
+{"timestamp": "2025-12-22T14:59:52.948583", "detections": [{"class_name": "person", "confidence": 0.9034742712974548, "bbox": [102, 166, 416, 639], "class_id": 0, "area": 148473.90625, "center": [259, 402]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "2d148633", "analysis_mode": "basic"}
+2025-12-22 14:59:52,948 - root - INFO - Detected: person (0.90) at [102, 166, 416, 639]
+{"timestamp": "2025-12-22T14:59:54.768635", "detections": [{"class_name": "person", "confidence": 0.9171561002731323, "bbox": [113, 167, 422, 639], "class_id": 0, "area": 145301.578125, "center": [267, 403]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "2d148633", "analysis_mode": "basic"}
+2025-12-22 14:59:54,768 - root - INFO - Detected: person (0.92) at [113, 167, 422, 639]
+{"timestamp": "2025-12-22T14:59:56.355290", "detections": [{"class_name": "person", "confidence": 0.9021872878074646, "bbox": [130, 178, 437, 639], "class_id": 0, "area": 141619.15625, "center": [284, 408]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "2d148633", "analysis_mode": "basic"}
+2025-12-22 14:59:56,355 - root - INFO - Detected: person (0.90) at [130, 178, 437, 639]
+{"timestamp": "2025-12-22T14:59:57.949700", "detections": [{"class_name": "person", "confidence": 0.8491777181625366, "bbox": [149, 203, 451, 638], "class_id": 0, "area": 131911.703125, "center": [300, 421]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "2d148633", "analysis_mode": "basic"}
+2025-12-22 14:59:57,949 - root - INFO - Detected: person (0.85) at [149, 203, 451, 638]
+{"timestamp": "2025-12-22T14:59:59.515705", "detections": [{"class_name": "person", "confidence": 0.8888250589370728, "bbox": [179, 218, 464, 639], "class_id": 0, "area": 119779.59375, "center": [322, 428]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "2d148633", "analysis_mode": "basic"}
+2025-12-22 14:59:59,515 - root - INFO - Detected: person (0.89) at [179, 218, 464, 639]
+{"timestamp": "2025-12-22T15:00:01.112440", "detections": [{"class_name": "person", "confidence": 0.9300550222396851, "bbox": [261, 312, 514, 639], "class_id": 0, "area": 82475.21875, "center": [387, 476]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "2d148633", "analysis_mode": "basic"}
+2025-12-22 15:00:01,112 - root - INFO - Detected: person (0.93) at [261, 312, 514, 639]
+{"timestamp": "2025-12-22T15:00:02.708303", "detections": [{"class_name": "person", "confidence": 0.93775475025177, "bbox": [255, 289, 508, 639], "class_id": 0, "area": 88773.4921875, "center": [381, 464]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "2d148633", "analysis_mode": "basic"}
+2025-12-22 15:00:02,708 - root - INFO - Detected: person (0.94) at [255, 289, 508, 639]
+{"timestamp": "2025-12-22T15:00:04.311597", "detections": [{"class_name": "person", "confidence": 0.9366154670715332, "bbox": [254, 292, 506, 639], "class_id": 0, "area": 87511.703125, "center": [380, 465]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "2d148633", "analysis_mode": "basic"}
+2025-12-22 15:00:04,311 - root - INFO - Detected: person (0.94) at [254, 292, 506, 639]
+{"timestamp": "2025-12-22T15:00:05.892441", "detections": [{"class_name": "person", "confidence": 0.9235703945159912, "bbox": [224, 225, 491, 639], "class_id": 0, "area": 110673.1328125, "center": [358, 432]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "2d148633", "analysis_mode": "basic"}
+2025-12-22 15:00:05,892 - root - INFO - Detected: person (0.92) at [224, 225, 491, 639]
+{"timestamp": "2025-12-22T15:00:07.608077", "detections": [{"class_name": "person", "confidence": 0.9126459360122681, "bbox": [228, 226, 489, 639], "class_id": 0, "area": 107754.875, "center": [358, 432]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "2d148633", "analysis_mode": "basic"}
+2025-12-22 15:00:07,608 - root - INFO - Detected: person (0.91) at [228, 226, 489, 639]
+{"timestamp": "2025-12-22T15:00:09.337259", "detections": [{"class_name": "person", "confidence": 0.9436371922492981, "bbox": [250, 247, 501, 639], "class_id": 0, "area": 98361.9296875, "center": [375, 443]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "2d148633", "analysis_mode": "basic"}
+2025-12-22 15:00:09,337 - root - INFO - Detected: person (0.94) at [250, 247, 501, 639]
+{"timestamp": "2025-12-22T15:00:11.116073", "detections": [{"class_name": "person", "confidence": 0.934722363948822, "bbox": [260, 263, 512, 639], "class_id": 0, "area": 94555.09375, "center": [386, 451]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "2d148633", "analysis_mode": "basic"}
+2025-12-22 15:00:11,116 - root - INFO - Detected: person (0.93) at [260, 263, 512, 639]
+{"timestamp": "2025-12-22T15:00:12.783595", "detections": [{"class_name": "person", "confidence": 0.9276028871536255, "bbox": [265, 266, 512, 639], "class_id": 0, "area": 92040.96875, "center": [389, 452]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "2d148633", "analysis_mode": "basic"}
+2025-12-22 15:00:12,783 - root - INFO - Detected: person (0.93) at [265, 266, 512, 639]
+{"timestamp": "2025-12-22T15:00:14.433531", "detections": [{"class_name": "person", "confidence": 0.9136452078819275, "bbox": [214, 131, 511, 639], "class_id": 0, "area": 150790.09375, "center": [363, 385]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "2d148633", "analysis_mode": "basic"}
+2025-12-22 15:00:14,433 - root - INFO - Detected: person (0.91) at [214, 131, 511, 639]
+{"timestamp": "2025-12-22T15:00:16.346759", "detections": [{"class_name": "person", "confidence": 0.9018856287002563, "bbox": [248, 129, 555, 638], "class_id": 0, "area": 156593.5, "center": [402, 384]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "2d148633", "analysis_mode": "basic"}
+2025-12-22 15:00:16,347 - root - INFO - Detected: person (0.90) at [248, 129, 555, 638]
+{"timestamp": "2025-12-22T15:00:18.027450", "detections": [{"class_name": "person", "confidence": 0.9059292078018188, "bbox": [251, 130, 557, 639], "class_id": 0, "area": 156061.1875, "center": [404, 384]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "2d148633", "analysis_mode": "basic"}
+2025-12-22 15:00:18,027 - root - INFO - Detected: person (0.91) at [251, 130, 557, 639]
+{"timestamp": "2025-12-22T15:00:19.732831", "detections": [{"class_name": "person", "confidence": 0.9031657576560974, "bbox": [251, 135, 554, 638], "class_id": 0, "area": 152460.390625, "center": [402, 387]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "2d148633", "analysis_mode": "basic"}
+2025-12-22 15:00:19,733 - root - INFO - Detected: person (0.90) at [251, 135, 554, 638]
+{"timestamp": "2025-12-22T15:00:21.514084", "detections": [{"class_name": "person", "confidence": 0.9133903384208679, "bbox": [251, 141, 550, 639], "class_id": 0, "area": 149073.34375, "center": [400, 390]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "2d148633", "analysis_mode": "basic"}
+2025-12-22 15:00:21,514 - root - INFO - Detected: person (0.91) at [251, 141, 550, 639]
+{"timestamp": "2025-12-22T15:00:23.214820", "detections": [{"class_name": "person", "confidence": 0.9123649597167969, "bbox": [252, 129, 552, 639], "class_id": 0, "area": 153224.3125, "center": [402, 384]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "2d148633", "analysis_mode": "basic"}
+2025-12-22 15:00:23,215 - root - INFO - Detected: person (0.91) at [252, 129, 552, 639]
+{"timestamp": "2025-12-22T15:00:24.932462", "detections": [{"class_name": "person", "confidence": 0.907778799533844, "bbox": [252, 131, 554, 639], "class_id": 0, "area": 153131.484375, "center": [403, 385]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "2d148633", "analysis_mode": "basic"}
+2025-12-22 15:00:24,932 - root - INFO - Detected: person (0.91) at [252, 131, 554, 639]
+{"timestamp": "2025-12-22T15:00:26.608807", "detections": [{"class_name": "person", "confidence": 0.908754289150238, "bbox": [254, 136, 551, 639], "class_id": 0, "area": 148971.71875, "center": [402, 387]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "2d148633", "analysis_mode": "basic"}
+2025-12-22 15:00:26,609 - root - INFO - Detected: person (0.91) at [254, 136, 551, 639]
+{"timestamp": "2025-12-22T15:00:28.303831", "detections": [{"class_name": "person", "confidence": 0.9119934439659119, "bbox": [253, 106, 564, 639], "class_id": 0, "area": 165654.765625, "center": [408, 373]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "2d148633", "analysis_mode": "basic"}
+2025-12-22 15:00:28,304 - root - INFO - Detected: person (0.91) at [253, 106, 564, 639]
+{"timestamp": "2025-12-22T15:00:30.100963", "detections": [{"class_name": "person", "confidence": 0.8991279006004333, "bbox": [227, 80, 586, 638], "class_id": 0, "area": 200382.265625, "center": [406, 359]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "2d148633", "analysis_mode": "basic"}
+2025-12-22 15:00:30,101 - root - INFO - Detected: person (0.90) at [227, 80, 586, 638]
+{"timestamp": "2025-12-22T15:00:31.890161", "detections": [{"class_name": "person", "confidence": 0.9160817265510559, "bbox": [220, 104, 562, 639], "class_id": 0, "area": 182675.21875, "center": [391, 371]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "2d148633", "analysis_mode": "basic"}
+2025-12-22 15:00:31,890 - root - INFO - Detected: person (0.92) at [220, 104, 562, 639]
+{"timestamp": "2025-12-22T15:00:33.587670", "detections": [{"class_name": "person", "confidence": 0.8990560173988342, "bbox": [220, 125, 539, 639], "class_id": 0, "area": 163906.5625, "center": [380, 382]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "2d148633", "analysis_mode": "basic"}
+2025-12-22 15:00:33,587 - root - INFO - Detected: person (0.90) at [220, 125, 539, 639]
+{"timestamp": "2025-12-22T15:00:35.269846", "detections": [{"class_name": "person", "confidence": 0.9135704040527344, "bbox": [237, 129, 550, 639], "class_id": 0, "area": 159494.515625, "center": [394, 384]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "2d148633", "analysis_mode": "basic"}
+2025-12-22 15:00:35,270 - root - INFO - Detected: person (0.91) at [237, 129, 550, 639]
+{"timestamp": "2025-12-22T15:00:37.021605", "detections": [{"class_name": "person", "confidence": 0.8887924551963806, "bbox": [216, 135, 538, 639], "class_id": 0, "area": 162127.4375, "center": [377, 387]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "2d148633", "analysis_mode": "basic"}
+2025-12-22 15:00:37,021 - root - INFO - Detected: person (0.89) at [216, 135, 538, 639]
+{"timestamp": "2025-12-22T15:00:38.696382", "detections": [{"class_name": "person", "confidence": 0.9007685780525208, "bbox": [225, 141, 546, 639], "class_id": 0, "area": 159766.046875, "center": [385, 390]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "2d148633", "analysis_mode": "basic"}
+2025-12-22 15:00:38,696 - root - INFO - Detected: person (0.90) at [225, 141, 546, 639]
+{"timestamp": "2025-12-22T15:00:40.408330", "detections": [{"class_name": "person", "confidence": 0.9035037755966187, "bbox": [225, 142, 543, 639], "class_id": 0, "area": 157815.5, "center": [384, 390]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "2d148633", "analysis_mode": "basic"}
+2025-12-22 15:00:40,408 - root - INFO - Detected: person (0.90) at [225, 142, 543, 639]
+{"timestamp": "2025-12-22T15:00:42.105388", "detections": [{"class_name": "person", "confidence": 0.8881185054779053, "bbox": [211, 133, 536, 639], "class_id": 0, "area": 164687.671875, "center": [374, 386]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "2d148633", "analysis_mode": "basic"}
+2025-12-22 15:00:42,105 - root - INFO - Detected: person (0.89) at [211, 133, 536, 639]
+{"timestamp": "2025-12-22T15:00:43.790159", "detections": [{"class_name": "person", "confidence": 0.9221814870834351, "bbox": [240, 120, 548, 639], "class_id": 0, "area": 160006.15625, "center": [394, 379]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "2d148633", "analysis_mode": "basic"}
+2025-12-22 15:00:43,790 - root - INFO - Detected: person (0.92) at [240, 120, 548, 639]
+{"timestamp": "2025-12-22T15:00:45.503631", "detections": [{"class_name": "person", "confidence": 0.9176684021949768, "bbox": [257, 131, 565, 639], "class_id": 0, "area": 156444.5625, "center": [411, 385]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "2d148633", "analysis_mode": "basic"}
+2025-12-22 15:00:45,503 - root - INFO - Detected: person (0.92) at [257, 131, 565, 639]
+{"timestamp": "2025-12-22T15:00:47.165362", "detections": [{"class_name": "person", "confidence": 0.9127017259597778, "bbox": [221, 136, 516, 639], "class_id": 0, "area": 148506.40625, "center": [368, 387]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "2d148633", "analysis_mode": "basic"}
+2025-12-22 15:00:47,165 - root - INFO - Detected: person (0.91) at [221, 136, 516, 639]
+{"timestamp": "2025-12-22T15:00:48.844800", "detections": [{"class_name": "person", "confidence": 0.9267406463623047, "bbox": [190, 139, 489, 639], "class_id": 0, "area": 149596.9375, "center": [340, 389]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "2d148633", "analysis_mode": "basic"}
+2025-12-22 15:00:48,844 - root - INFO - Detected: person (0.93) at [190, 139, 489, 639]
+{"timestamp": "2025-12-22T15:00:50.494304", "detections": [{"class_name": "person", "confidence": 0.9352083802223206, "bbox": [187, 139, 491, 639], "class_id": 0, "area": 152126.21875, "center": [339, 389]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "2d148633", "analysis_mode": "basic"}
+2025-12-22 15:00:50,494 - root - INFO - Detected: person (0.94) at [187, 139, 491, 639]
+{"timestamp": "2025-12-22T15:00:52.127646", "detections": [{"class_name": "person", "confidence": 0.9196141362190247, "bbox": [193, 143, 492, 639], "class_id": 0, "area": 148355.78125, "center": [342, 391]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "2d148633", "analysis_mode": "basic"}
+2025-12-22 15:00:52,127 - root - INFO - Detected: person (0.92) at [193, 143, 492, 639]
+{"timestamp": "2025-12-22T15:00:53.708061", "detections": [{"class_name": "person", "confidence": 0.9009442329406738, "bbox": [194, 144, 494, 639], "class_id": 0, "area": 148444.3125, "center": [344, 392]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "2d148633", "analysis_mode": "basic"}
+2025-12-22 15:00:53,708 - root - INFO - Detected: person (0.90) at [194, 144, 494, 639]
+{"timestamp": "2025-12-22T15:00:55.432925", "detections": [{"class_name": "person", "confidence": 0.9320095777511597, "bbox": [192, 138, 493, 639], "class_id": 0, "area": 150665.734375, "center": [342, 389]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "2d148633", "analysis_mode": "basic"}
+2025-12-22 15:00:55,433 - root - INFO - Detected: person (0.93) at [192, 138, 493, 639]
+{"timestamp": "2025-12-22T15:00:57.044585", "detections": [{"class_name": "person", "confidence": 0.9184596538543701, "bbox": [178, 142, 506, 639], "class_id": 0, "area": 163035.125, "center": [342, 390]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "2d148633", "analysis_mode": "basic"}
+2025-12-22 15:00:57,044 - root - INFO - Detected: person (0.92) at [178, 142, 506, 639]
+{"timestamp": "2025-12-22T15:00:58.743837", "detections": [{"class_name": "person", "confidence": 0.6435331702232361, "bbox": [227, 159, 638, 638], "class_id": 0, "area": 196688.671875, "center": [432, 398]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "2d148633", "analysis_mode": "basic"}
+2025-12-22 15:00:58,744 - root - INFO - Detected: person (0.64) at [227, 159, 638, 638]
+{"timestamp": "2025-12-22T15:01:00.631624", "detections": [{"class_name": "cell phone", "confidence": 0.5403037667274475, "bbox": [318, 241, 425, 632], "class_id": 67, "area": 41781.7109375, "center": [372, 436]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "2d148633", "analysis_mode": "basic"}
+2025-12-22 15:01:00,632 - root - INFO - Detected: cell phone (0.54) at [318, 241, 425, 632]
+{"timestamp": "2025-12-22T15:01:02.229905", "detections": [{"class_name": "cell phone", "confidence": 0.6736677885055542, "bbox": [309, 271, 417, 640], "class_id": 67, "area": 39749.0, "center": [363, 455]}, {"class_name": "person", "confidence": 0.6730006337165833, "bbox": [229, 165, 552, 639], "class_id": 0, "area": 153348.5625, "center": [391, 402]}], "frame_info": {"width": 1280, "height": 720, "fps": 0}, "device_info": {}, "session_id": "2d148633", "analysis_mode": "basic"}
+2025-12-22 15:01:02,230 - root - INFO - Detected: cell phone (0.67) at [309, 271, 417, 640]
+2025-12-22 15:01:02,230 - root - INFO - Detected: person (0.67) at [229, 165, 552, 639]

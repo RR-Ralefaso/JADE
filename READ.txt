@@ -1,0 +1,7 @@
+TRAIN custom model:
+===================
+
+
+python train_jade.py --setup
+# Add your training images and labels
+python train_jade.py --train --classes your_object1 your_object2 --epochs 50

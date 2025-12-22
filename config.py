@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Simple configuration
+# Enhanced configuration
 class Config:
     # API Keys (set in .env file) - Only OpenAI needed
     OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', '')
@@ -13,14 +13,27 @@ class Config:
     VOICE_GENDER = "female"  # "male" or "female"
     SPEAKING_RATE = 180
     
+    # Voice Activation Settings
+    WAKE_WORD_SENSITIVITY = 0.7
+    SPEECH_TIMEOUT = 5
+    PHRASE_TIME_LIMIT = 7
+    
     # Camera Settings
-    CAMERA_ID = 2 # Default camera(0,1,2,3,4)
+    CAMERA_ID = 2  # Default camera(0,1,2,3,4)
     PREVIEW_WIDTH = 1280
     PREVIEW_HEIGHT = 720
     
     # Detection Settings
     MODEL_PATH = 'models/yolo11n.pt'
-    CONFIDENCE = 0.5
+    CONFIDENCE = 0.5  # Lowered for more detections
+    MAX_DETECTIONS = 50
+    IOU_THRESHOLD = 0.45
+    AGNOSTIC_NMS = True
+    
+    # Analysis Settings
+    ENABLE_DETAILED_ANALYSIS = True
+    SAVE_ANALYSIS_REPORTS = True
+    REPORT_DIR = 'reports'
     
     # Application Settings
     TARGET_FPS = 30
@@ -52,17 +65,44 @@ TARGET_FPS = config.TARGET_FPS
 FRAME_SKIP = config.FRAME_SKIP
 PREVIEW_SIZE = config.PREVIEW_SIZE
 
+# Enhanced detection settings
+MAX_DETECTIONS = config.MAX_DETECTIONS
+IOU_THRESHOLD = config.IOU_THRESHOLD
+AGNOSTIC_NMS = config.AGNOSTIC_NMS
+
+# Voice activation settings
+WAKE_WORD_SENSITIVITY = config.WAKE_WORD_SENSITIVITY
+SPEECH_TIMEOUT = config.SPEECH_TIMEOUT
+PHRASE_TIME_LIMIT = config.PHRASE_TIME_LIMIT
+
+# Analysis settings
+ENABLE_DETAILED_ANALYSIS = config.ENABLE_DETAILED_ANALYSIS
+SAVE_ANALYSIS_REPORTS = config.SAVE_ANALYSIS_REPORTS
+REPORT_DIR = config.REPORT_DIR
+
 # API Keys dictionary (only OpenAI)
 API_KEYS = {
     'openai': config.OPENAI_API_KEY
 }
 
-# Voice Settings dictionary
+# Enhanced Voice Settings dictionary
 VOICE_SETTINGS = {
     'wake_word': config.WAKE_WORD,
     'voice_gender': config.VOICE_GENDER,
     'speaking_rate': config.SPEAKING_RATE,
-    'auto_start': True
+    'auto_start': True,
+    'wake_word_sensitivity': config.WAKE_WORD_SENSITIVITY,
+    'speech_timeout': config.SPEECH_TIMEOUT,
+    'phrase_time_limit': config.PHRASE_TIME_LIMIT
+}
+
+# Detection Settings dictionary
+DETECTION_SETTINGS = {
+    'model_path': config.MODEL_PATH,
+    'confidence': config.CONFIDENCE,
+    'max_detections': config.MAX_DETECTIONS,
+    'iou_threshold': config.IOU_THRESHOLD,
+    'agnostic_nms': config.AGNOSTIC_NMS
 }
 
 # Create .env template if not exists
@@ -80,6 +120,17 @@ OPENAI_API_KEY=your_openai_key_here
         print("📄 Created .env template file")
         print("⚠️  Please edit .env with your OpenAI API key")
 
+# Create reports directory if not exists
+def create_directories():
+    directories = ['logs', 'voice_logs', 'models', 'reports', 
+                   'train/images', 'train/labels',
+                   'val/images', 'val/labels',
+                   'test/images', 'test/labels']
+    
+    for directory in directories:
+        os.makedirs(directory, exist_ok=True)
+
 if __name__ == "__main__":
     create_env_template()
-    print("✅ Configuration loaded")
+    create_directories()
+    print("✅ Configuration loaded and directories created")

@@ -1,3 +1,4 @@
+import warnings
 import speech_recognition as sr
 import pyttsx3
 import threading
@@ -9,39 +10,89 @@ from datetime import datetime
 import numpy as np
 import pyaudio
 from pathlib import Path
+import wave
+from collections import deque
 
 class JADEBaseAssistant:
     """Base assistant class that JadeVoiceAssistant can interact with"""
     def __init__(self):
         self.current_mode = 'conversational'
+        self.object_analysis_enabled = True
     
     def change_mode(self, mode):
-        self.current_mode = mode
-        return f"Mode changed to {mode}"
+        """Change operation mode"""
+        valid_modes = ['analysis', 'conversational', 'detection_only']
+        if mode in valid_modes:
+            self.current_mode = mode
+            return f"Mode changed to {mode} mode"
+        else:
+            return f"Invalid mode. Available modes: {', '.join(valid_modes)}"
     
     def chat(self, message, context=None):
+        """Handle chat messages"""
+        message_lower = message.lower()
+        
         # Simple responses without API calls
-        if "hello" in message.lower() or "hi" in message.lower():
-            return "Hello! I'm JADE, your voice-enabled object analyzer."
-        elif "how are you" in message.lower():
-            return "I'm functioning optimally! Ready to analyze objects for you."
-        elif "thank" in message.lower():
-            return "You're welcome! I'm here to help."
-        elif "analyze" in message.lower():
-            return "I can analyze objects detected by the camera. Point the camera at an object."
-        elif "what can you do" in message.lower():
-            return "I can analyze objects through camera, identify them, estimate their value, and chat with you!"
-        else:
-            return f"I heard: '{message}'. I'm currently in {self.current_mode} mode. How can I assist you with object analysis?"
+        responses = {
+            "hello": "Hello! I'm JADE, your voice-enabled object analyzer.",
+            "hi": "Hi there! Ready to analyze objects for you.",
+            "how are you": "I'm functioning optimally! Ready to analyze objects for you.",
+            "thank": "You're welcome! I'm here to help.",
+            "thanks": "You're welcome! I'm here to help.",
+            "analyze": "I can analyze objects detected by the camera. Point the camera at an object.",
+            "what can you do": "I can analyze objects through camera, identify them, estimate their value, and chat with you!",
+            "who are you": "I'm JADE, your voice-enabled object analysis assistant.",
+            "what is your name": "I'm JADE - Just Another Detection Engine.",
+            "help": "I can analyze objects, estimate their value, and chat with you. Try saying 'analyze object' or 'what do you see'.",
+            "good morning": "Good morning! Ready for object analysis.",
+            "good afternoon": "Good afternoon! Let's analyze some objects.",
+            "good evening": "Good evening! I'm here to assist you.",
+            "good night": "Good night! I'll be here when you need me."
+        }
+        
+        # Check for exact matches
+        for key in responses:
+            if key in message_lower:
+                return responses[key]
+        
+        # Check for patterns
+        if "mode" in message_lower:
+            if "analysis" in message_lower:
+                return self.change_mode('analysis')
+            elif "conversational" in message_lower:
+                return self.change_mode('conversational')
+            elif "detection" in message_lower:
+                return self.change_mode('detection_only')
+        
+        # Default response
+        return f"I heard: '{message}'. I'm currently in {self.current_mode} mode. How can I assist you with object analysis?"
     
     def clear_conversation(self):
-        return "Conversation cleared"
+        """Clear conversation context"""
+        return "Conversation history cleared"
     
     def _explain_capabilities(self):
-        return "I can analyze objects through camera, identify them, estimate value, and have conversations."
+        """Explain what JADE can do"""
+        return """I can:
+1. Detect and identify objects through camera
+2. Analyze object condition and estimate value
+3. Provide detailed object information
+4. Have conversations with you
+5. Learn to recognize new objects through training"""
     
     def _explain_modes(self):
-        return "Available modes: analysis (detailed object analysis), conversational (chat mode)"
+        """Explain available modes"""
+        return """Available modes:
+• Analysis mode: Detailed object analysis with value estimation
+• Conversational mode: Chat and basic object description
+• Detection only mode: Just object detection without analysis"""
+    
+    def enable_object_analysis(self, enable=True):
+        """Enable or disable object analysis"""
+        self.object_analysis_enabled = enable
+        status = "enabled" if enable else "disabled"
+        return f"Object analysis {status}"
+
 
 class JADEVoiceAssistant:
     def __init__(self, jade_assistant=None, wake_word="hey jade", voice_gender='female', speaking_rate=180):
@@ -50,11 +101,28 @@ class JADEVoiceAssistant:
         self.jade_assistant = jade_assistant if jade_assistant else JADEBaseAssistant()
         self.wake_word = wake_word.lower()
         
+        # Enhanced wake word detection
+        self.wake_word_variations = [
+            "hey jade",
+            "jade",
+            "okay jade",
+            "listen jade",
+            "attention jade",
+            "hello jade",
+            "hi jade"
+        ]
+        
         # Speech recognition
         self.recognizer = sr.Recognizer()
         self.microphone = None
         self.listening = False
         self.is_awake = False
+        self.is_processing = False
+        
+        # Audio processing
+        self.audio_buffer = deque(maxlen=20)
+        self.silence_threshold = 500
+        self.min_audio_energy = 300
         
         # Text-to-speech
         self.tts_engine = pyttsx3.init()
@@ -77,7 +145,7 @@ class JADEVoiceAssistant:
         self.conversation_context = []
         self.max_context_length = 10
         
-        # Audio processing
+        # Audio processing settings
         self.audio_chunk = 1024
         self.audio_format = pyaudio.paInt16
         self.audio_channels = 1
@@ -88,7 +156,8 @@ class JADEVoiceAssistant:
             'professional': {'rate': 170, 'volume': 0.9},
             'friendly': {'rate': 160, 'volume': 1.0},
             'analytical': {'rate': 150, 'volume': 0.8},
-            'enthusiastic': {'rate': 190, 'volume': 1.0}
+            'enthusiastic': {'rate': 190, 'volume': 1.0},
+            'calm': {'rate': 140, 'volume': 0.7}
         }
         
         # Create voice logs directory
@@ -98,6 +167,7 @@ class JADEVoiceAssistant:
         print(f"🎤 JADE Voice Assistant Initialized")
         print(f"📢 Wake word: '{self.wake_word}'")
         print(f"🗣️  Voice profile: {voice_gender}")
+        print(f"📊 Wake word variations: {len(self.wake_word_variations)}")
     
     def setup_tts(self, gender='female', rate=180):
         """Setup text-to-speech engine"""
@@ -125,16 +195,20 @@ class JADEVoiceAssistant:
             # Mode switching
             "switch to analysis mode": lambda: self.jade_assistant.change_mode('analysis'),
             "switch to conversational mode": lambda: self.jade_assistant.change_mode('conversational'),
+            "switch to detection mode": lambda: self.jade_assistant.change_mode('detection_only'),
             
             # Analysis commands
             "analyze object": self._analyze_current_object,
             "what do you see": self._describe_scene,
             "identify objects": self._identify_objects,
             "describe scene": self._describe_scene,
+            "scan objects": self._identify_objects,
             
             # System commands
             "stop listening": self.stop_listening,
             "start listening": self.start_listening,
+            "go to sleep": lambda: self._go_to_sleep(),
+            "wake up": lambda: self._wake_up(),
             "clear conversation": lambda: self.jade_assistant.clear_conversation(),
             "what can you do": lambda: self.jade_assistant._explain_capabilities(),
             
@@ -149,12 +223,22 @@ class JADEVoiceAssistant:
             "speak louder": lambda: self._adjust_volume(0.2),
             "speak softer": lambda: self._adjust_volume(-0.2),
             
+            # Object analysis control
+            "enable analysis": lambda: self.jade_assistant.enable_object_analysis(True),
+            "disable analysis": lambda: self.jade_assistant.enable_object_analysis(False),
+            
             # Greetings
             "hello": lambda: "Hello! I'm JADE, ready to analyze objects.",
             "hi": lambda: "Hi there! How can I help you today?",
             "good morning": lambda: "Good morning! Ready for object analysis.",
             "good afternoon": lambda: "Good afternoon! Let's analyze some objects.",
             "good evening": lambda: "Good evening! I'm here to assist you.",
+            "good night": lambda: "Good night! I'll be here when you need me.",
+            
+            # Status
+            "are you there": lambda: "Yes, I'm here and listening.",
+            "can you hear me": lambda: "Yes, I can hear you clearly.",
+            "test microphone": lambda: self._test_microphone(),
         }
         
         return commands
@@ -173,6 +257,32 @@ class JADEVoiceAssistant:
         self.tts_engine.setProperty('volume', new_volume)
         return f"Volume adjusted to {new_volume:.1f}"
     
+    def _test_microphone(self):
+        """Test microphone functionality"""
+        try:
+            # Record a short sample
+            audio_data = self.record_audio_numpy(duration=2)
+            
+            # Analyze audio quality
+            analysis = self.analyze_audio_quality(audio_data)
+            
+            if analysis['is_clear']:
+                return "Microphone test successful! Audio quality is good."
+            else:
+                return f"Microphone working but audio quality is low. RMS: {analysis['rms']:.1f}"
+        except Exception as e:
+            return f"Microphone test failed: {str(e)}"
+    
+    def _go_to_sleep(self):
+        """Put assistant to sleep"""
+        self.is_awake = False
+        return "Going to sleep. Say 'hey jade' to wake me up."
+    
+    def _wake_up(self):
+        """Wake up assistant"""
+        self.is_awake = True
+        return "I'm awake and ready to help!"
+    
     def start_listening(self):
         """Start continuous voice listening"""
         if self.listening:
@@ -180,7 +290,6 @@ class JADEVoiceAssistant:
             return
         
         self.listening = True
-        self.is_awake = True
         
         # Initialize microphone
         try:
@@ -217,62 +326,127 @@ class JADEVoiceAssistant:
         print("🛑 Voice listening stopped")
     
     def _continuous_listen(self):
-        """Continuously listen for voice input"""
+        """Continuously listen for voice input with improved wake word detection"""
         with self.microphone as source:
-            self.recognizer.adjust_for_ambient_noise(source, duration=1)
+            # Configure recognizer for better sensitivity
+            self.recognizer.energy_threshold = self.min_audio_energy
+            self.recognizer.dynamic_energy_threshold = True
+            self.recognizer.dynamic_energy_adjustment_damping = 0.15
+            self.recognizer.pause_threshold = 0.8
+            self.recognizer.operation_timeout = None
+            
             print("🔊 Calibrated for ambient noise")
             
             while self.listening:
                 try:
-                    print("👂 Listening... (say 'hey jade' to wake me)")
-                    
-                    # Listen for audio with timeout
-                    audio = self.recognizer.listen(
-                        source, 
-                        timeout=5, 
-                        phrase_time_limit=10
-                    )
-                    
-                    # Convert speech to text
-                    try:
-                        text = self.recognizer.recognize_google(audio)
-                        print(f"🗣️  Heard: {text}")
+                    if not self.is_awake:
+                        print("😴 Sleeping... Waiting for wake word")
                         
-                        # Check for wake word
-                        if self.wake_word in text.lower():
-                            if not self.is_awake:
-                                self.is_awake = True
-                                self.speak("Yes, I'm listening!")
-                                print(f"✅ Woken up by '{self.wake_word}'")
+                        # Listen specifically for wake word with shorter timeout
+                        try:
+                            audio = self.recognizer.listen(
+                                source, 
+                                timeout=3,
+                                phrase_time_limit=2
+                            )
                             
-                            # Extract command after wake word
-                            command = text.lower().split(self.wake_word, 1)[1].strip()
-                            if command:
-                                self.command_queue.put(command)
-                                print(f"📝 Command queued: {command}")
-                        elif self.is_awake:
-                            # Direct command if already awake
-                            self.command_queue.put(text.lower())
-                            print(f"📝 Direct command: {text}")
+                            # Convert to text
+                            try:
+                                text = self.recognizer.recognize_google(audio).lower()
+                                print(f"👂 Heard: {text}")
+                                
+                                # Check for wake word variations
+                                wake_detected = False
+                                detected_word = ""
+                                
+                                for variation in self.wake_word_variations:
+                                    if variation in text:
+                                        wake_detected = True
+                                        detected_word = variation
+                                        break
+                                
+                                if wake_detected:
+                                    print(f"✅ Woken up by: '{detected_word}'")
+                                    self.is_awake = True
+                                    self.speak("Yes, I'm listening!")
+                                    
+                                    # Listen for immediate command
+                                    try:
+                                        print("🎤 Listening for command...")
+                                        audio = self.recognizer.listen(
+                                            source,
+                                            timeout=5,
+                                            phrase_time_limit=5
+                                        )
+                                        
+                                        try:
+                                            command = self.recognizer.recognize_google(audio).lower()
+                                            print(f"📝 Command: {command}")
+                                            
+                                            if command:
+                                                self.command_queue.put(command)
+                                        except sr.UnknownValueError:
+                                            print("🤔 Could not understand command")
+                                            self.speak("I didn't catch that command. Could you repeat?")
+                                            self.is_awake = True  # Stay awake for retry
+                                        except sr.RequestError as e:
+                                            print(f"❌ API error: {e}")
+                                            
+                                    except sr.WaitTimeoutError:
+                                        print("⏰ No command detected")
+                                        self.speak("I'm listening for your command.")
+                                
+                            except sr.UnknownValueError:
+                                continue  # No speech detected, continue listening
+                            except sr.RequestError as e:
+                                print(f"❌ Speech recognition error: {e}")
+                        
+                        except sr.WaitTimeoutError:
+                            continue  # No audio detected, continue
+                    
+                    else:
+                        # Already awake, listen for commands with longer timeout
+                        print("👂 Listening for commands...")
+                        
+                        try:
+                            audio = self.recognizer.listen(
+                                source,
+                                timeout=10,
+                                phrase_time_limit=7
+                            )
                             
-                    except sr.UnknownValueError:
-                        if self.is_awake:
-                            self.speak("I didn't catch that. Could you repeat?")
-                        print("🤔 Could not understand audio")
-                    except sr.RequestError as e:
-                        print(f"❌ Recognition error: {e}")
-                        if self.is_awake:
-                            self.speak("I'm having trouble with speech recognition.")
+                            try:
+                                command = self.recognizer.recognize_google(audio).lower()
+                                print(f"📝 Command: {command}")
+                                
+                                if command:
+                                    self.command_queue.put(command)
+                                    
+                                    # Check for sleep commands
+                                    sleep_commands = ["stop listening", "go to sleep", "that's all", "goodbye"]
+                                    for sleep_cmd in sleep_commands:
+                                        if sleep_cmd in command:
+                                            self.is_awake = False
+                                            self.speak("Going to sleep. Say 'hey jade' to wake me up.")
+                                            break
+                            
+                            except sr.UnknownValueError:
+                                print("🤔 Could not understand audio")
+                                self.speak("I didn't catch that. Could you repeat?")
+                            except sr.RequestError as e:
+                                print(f"❌ Recognition error: {e}")
+                                self.speak("I'm having trouble with speech recognition.")
+                        
+                        except sr.WaitTimeoutError:
+                            if self.is_awake:
+                                print("⏰ No speech detected for 10 seconds, going back to sleep")
+                                self.is_awake = False
+                                self.speak("I'm going back to sleep. Say 'hey jade' when you need me.")
+                            continue
                 
-                except sr.WaitTimeoutError:
-                    # No speech detected, check if we should go back to sleep
-                    if self.is_awake:
-                        print("⏰ No speech detected for 10 seconds, going back to sleep")
-                        self.is_awake = False
-                    continue
                 except Exception as e:
                     print(f"❌ Listening error: {e}")
-                    time.sleep(1)
+                    time.sleep(1)  # Brief pause on error
     
     def _process_commands(self):
         """Process queued voice commands"""
@@ -330,14 +504,38 @@ class JADEVoiceAssistant:
         # Check for patterns
         if "mode" in command:
             # Try to extract mode from command
-            modes = ['analysis', 'conversational']
+            modes = ['analysis', 'conversational', 'detection']
             for mode in modes:
                 if mode in command:
                     return self.jade_assistant.change_mode(mode)
         
+        # Check for analysis requests
+        analysis_keywords = ["analyze", "what is", "tell me about", "describe", "identify"]
+        for keyword in analysis_keywords:
+            if keyword in command:
+                return self._handle_analysis_request(command)
+        
         # Default: Pass to JADE assistant for processing
         print(f"🤖 Passing to JADE assistant: {command}")
         return self.jade_assistant.chat(command, self.conversation_context)
+    
+    def _handle_analysis_request(self, command):
+        """Handle object analysis requests"""
+        # Extract object name from command
+        object_keywords = ["object", "thing", "item", "what"]
+        object_name = None
+        
+        # Simple extraction logic
+        words = command.split()
+        for i, word in enumerate(words):
+            if word in ["analyze", "identify", "describe"] and i + 1 < len(words):
+                object_name = words[i + 1]
+                break
+        
+        if object_name:
+            return f"I'll analyze the {object_name} once it's detected by the camera. Please point the camera at it."
+        else:
+            return "Please point the camera at the object you want me to analyze."
     
     def _analyze_current_object(self):
         """Analyze currently selected object"""
@@ -357,16 +555,18 @@ class JADEVoiceAssistant:
         Here are some voice commands you can use:
         
         • "Hey Jade" followed by any question
-        • "Switch to [analysis/conversational] mode" - Change my operation mode
+        • "Switch to [analysis/conversational/detection] mode" - Change my operation mode
         • "Analyze object" - Analyze current object
         • "What do you see" - Describe the scene
         • "Describe scene" - Describe what's in view
         • "Current mode" - Check my current mode
-        • "Stop listening" - Deactivate voice assistant
+        • "Stop listening" or "Go to sleep" - Deactivate voice assistant
+        • "Start listening" or "Wake up" - Activate voice assistant
         • "Speak faster/slower" - Adjust speech speed
         • "Speak louder/softer" - Adjust volume
         • "Hello/Hi" - Greet me
         • "What can you do" - Learn about my capabilities
+        • "Help" - Hear this help message again
         
         You can also ask me anything about objects!
         """
@@ -417,6 +617,28 @@ class JADEVoiceAssistant:
                 f.write(json.dumps(log_entry) + '\n')
         except Exception as e:
             print(f"❌ Failed to log voice interaction: {e}")
+    
+    def analyze_audio_quality(self, audio_data):
+        """Analyze audio quality for better recognition"""
+        import numpy as np
+        
+        # Convert audio data to numpy array
+        if isinstance(audio_data, sr.AudioData):
+            audio_np = np.frombuffer(audio_data.get_raw_data(), dtype=np.int16)
+        else:
+            audio_np = audio_data
+        
+        # Calculate signal metrics
+        rms = np.sqrt(np.mean(audio_np**2))
+        peak = np.max(np.abs(audio_np))
+        snr = 20 * np.log10(rms / (np.std(audio_np) + 1e-10)) if np.std(audio_np) > 0 else 0
+        
+        return {
+            'rms': rms,
+            'peak': peak,
+            'snr': snr,
+            'is_clear': rms > 100 and snr > 10  # Thresholds for clear speech
+        }
     
     def record_audio_numpy(self, duration=5):
         """Record audio and return as numpy array"""
@@ -520,4 +742,6 @@ class JADEVoiceAssistant:
     
     def cleanup(self):
         """Cleanup audio resources"""
-        self.audio.terminate()
+        if hasattr(self, 'audio'):
+            self.audio.terminate()
+        print("✅ Audio resources cleaned up")

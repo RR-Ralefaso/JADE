@@ -14,7 +14,10 @@ def check_and_install():
         'pyttsx3',
         'pyaudio',
         'requests',
-        'python-dotenv'
+        'python-dotenv',
+        'scikit-image',      # Added for GLCM features
+        'scikit-learn',      # Added for KMeans clustering
+        'pyyaml'            # Added for training config
     ]
     
     print("📦 Checking/installing required packages...")
@@ -35,7 +38,8 @@ def check_and_install():
     print("\n✅ Installation complete!")
     
     # Create necessary directories
-    directories = ['models', 'logs', 'voice_logs']
+    directories = ['models', 'logs', 'voice_logs', 'train/images', 'train/labels', 
+                   'val/images', 'val/labels', 'test/images', 'test/labels', 'reports']
     for directory in directories:
         os.makedirs(directory, exist_ok=True)
         print(f"📁 Created directory: {directory}")

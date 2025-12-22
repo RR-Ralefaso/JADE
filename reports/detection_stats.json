@@ -1,0 +1,25 @@
+{
+  "total_detections": 0,
+  "unique_objects": [],
+  "confidence_stats": {
+    "average": 0.0,
+    "min": 1.0,
+    "max": 0.0
+  },
+  "detection_by_class": {},
+  "detection_by_hour": {
+    "23": 100
+  },
+  "timeline": {
+    "first_detection": "2025-12-21T23:48:44.459317",
+    "last_detection": "2025-12-21T23:48:51.967203",
+    "duration_hours": 0.002085523888888889
+  },
+  "session_summary": {
+    "total_sessions": 1,
+    "detections_per_session": {
+      "7e01fe8b": 0
+    },
+    "most_active_session": "7e01fe8b"
+  }
+}
