@@ -154,6 +154,81 @@ ENHANCED_KNOWLEDGE = {
         "authenticity_indicators": ["brand logos", "serial numbers", "quality welds"],
         "category": "vehicle",
         "base_value": 300
+    },
+    
+    "wine glass": {
+        "info": "Drinking glass for wine. Can indicate lifestyle or event.",
+        "value": "Crystal glassware = premium value.",
+        "tip": "Check for lead content in crystal glassware.",
+        "brands": ["Waterford", "Baccarat", "Riedel", "Spiegelau"],
+        "conditions": ["new", "used", "vintage", "cracked", "chipped"],
+        "materials": ["crystal", "glass", "lead_crystal"],
+        "estimated_value": "$10 - $1,000+",
+        "maintenance": "Hand wash, avoid extreme temperatures",
+        "rarity": "Common to Rare",
+        "authenticity_indicators": ["brand etching", "clarity", "ring sound"],
+        "category": "tableware",
+        "base_value": 50
+    },
+    
+    "vase": {
+        "info": "Container for holding flowers or as decorative item.",
+        "value": "Antique/designer vases = high value.",
+        "tip": "Check for signatures and manufacturing marks.",
+        "brands": ["Royal Copenhagen", "Wedgwood", "Meissen", "Ming Dynasty"],
+        "conditions": ["antique", "vintage", "modern", "cracked", "restored"],
+        "materials": ["porcelain", "ceramic", "glass", "crystal"],
+        "estimated_value": "$20 - $50,000+",
+        "maintenance": "Dust regularly, avoid direct sunlight",
+        "rarity": "Common to Ultra Rare",
+        "authenticity_indicators": ["maker's mark", "age signs", "material quality"],
+        "category": "decor",
+        "base_value": 100
+    },
+    
+    "cup": {
+        "info": "Drinking vessel, often with handle.",
+        "value": "Collectible mugs and antique teacups hold value.",
+        "tip": "Check for manufacturer stamps on bottom.",
+        "brands": ["Starbucks", "Wedgwood", "Royal Albert", "Narumi"],
+        "conditions": ["new", "used", "vintage", "cracked", "stained"],
+        "materials": ["porcelain", "ceramic", "glass", "stoneware"],
+        "estimated_value": "$5 - $500",
+        "maintenance": "Hand wash recommended for delicate pieces",
+        "rarity": "Common",
+        "authenticity_indicators": ["maker's mark", "glaze quality", "weight"],
+        "category": "tableware",
+        "base_value": 15
+    },
+    
+    "keyboard": {
+        "info": "Computer input device or musical instrument.",
+        "value": "Mechanical keyboards and vintage synthesizers = high value.",
+        "tip": "Check switch type for mechanical keyboards.",
+        "brands": ["Corsair", "Logitech", "Razer", "Moog", "Yamaha"],
+        "conditions": ["new", "used", "vintage", "mechanical", "membrane"],
+        "materials": ["plastic", "metal", "electronics"],
+        "estimated_value": "$20 - $5,000",
+        "maintenance": "Regular cleaning, keycap removal for deep clean",
+        "rarity": "Common",
+        "authenticity_indicators": ["brand logos", "build quality", "key feel"],
+        "category": "electronics",
+        "base_value": 80
+    },
+    
+    "mouse": {
+        "info": "Computer pointing device.",
+        "value": "Gaming mice and vintage models hold value.",
+        "tip": "Check DPI and sensor type for gaming mice.",
+        "brands": ["Logitech", "Razer", "SteelSeries", "Microsoft"],
+        "conditions": ["new", "used", "gaming", "wireless", "wired"],
+        "materials": ["plastic", "rubber", "electronics"],
+        "estimated_value": "$10 - $200",
+        "maintenance": "Clean sensor regularly, replace feet when worn",
+        "rarity": "Common",
+        "authenticity_indicators": ["brand markings", "software compatibility", "sensor performance"],
+        "category": "electronics",
+        "base_value": 40
     }
 }
 
@@ -253,6 +328,74 @@ def analyze_object_visual_features(frame, bbox, object_type):
     
     return features
 
+def analyze_object_deep_features(frame, bbox, object_type):
+    """Deep analysis of object features including detailed condition assessment"""
+    features = analyze_object_visual_features(frame, bbox, object_type)
+    
+    if not features:
+        return features
+    
+    # Add deep condition analysis
+    if 'condition_indicators' in features:
+        cond = features['condition_indicators']
+        
+        # Enhanced condition scoring
+        condition_score = cond.get('condition_score', 5)
+        
+        # Analyze color consistency for wear
+        if 'color_variance' in features:
+            color_var = features['color_variance']
+            if color_var > 5000:
+                condition_score -= 1  # High variance indicates wear
+            elif color_var < 1000:
+                condition_score += 0.5  # Low variance indicates good condition
+        
+        # Analyze sharpness for focus/clarity
+        if 'sharpness' in features:
+            sharpness = features['sharpness']
+            if sharpness < 100:
+                condition_score -= 0.5  # Blurry indicates poor condition
+        
+        # Analyze edge density for texture/surface quality
+        if 'edge_density' in features:
+            edge_density = features['edge_density']
+            if edge_density > 0.2:
+                condition_score += 0.3  # Good texture detail
+            elif edge_density < 0.05:
+                condition_score -= 0.3  # Too smooth or blurry
+        
+        # Update condition
+        cond['condition_score'] = max(0, min(10, condition_score))
+        
+        # Enhanced condition rating
+        if condition_score >= 9:
+            cond['overall_condition'] = 'excellent'
+            cond['description'] = 'Like new, minimal wear'
+            cond['recommendation'] = 'Excellent condition, ready for use or resale'
+        elif condition_score >= 7:
+            cond['overall_condition'] = 'good'
+            cond['description'] = 'Minor wear, fully functional'
+            cond['recommendation'] = 'Good condition, suitable for daily use'
+        elif condition_score >= 5:
+            cond['overall_condition'] = 'fair'
+            cond['description'] = 'Visible wear, functional'
+            cond['recommendation'] = 'Fair condition, may need maintenance'
+        else:
+            cond['overall_condition'] = 'poor'
+            cond['description'] = 'Significant wear/damage'
+            cond['recommendation'] = 'Poor condition, consider repair or replacement'
+    
+    # Add material confidence
+    if 'material_indicators' in features:
+        mat = features['material_indicators']
+        if mat.get('reflectivity') == 'high':
+            mat['confidence'] = 'high'
+            mat['likely_materials'] = mat.get('possible_materials', [])[:2]
+        else:
+            mat['confidence'] = 'medium'
+    
+    return features
+
 def _rgb_to_color_name(rgb):
     """Convert RGB to color name"""
     r, g, b = rgb
@@ -291,13 +434,13 @@ def _analyze_material_indicators(image):
     
     if brightness_variance > 5000:
         indicators['reflectivity'] = 'high'
-        indicators['possible_materials'] = ['metal', 'glass', 'ceramic']
+        indicators['possible_materials'] = ['metal', 'glass', 'ceramic', 'polished_wood']
     elif brightness_variance > 2000:
         indicators['reflectivity'] = 'medium'
-        indicators['possible_materials'] = ['plastic', 'painted_surface', 'glazed_ceramic']
+        indicators['possible_materials'] = ['plastic', 'painted_surface', 'glazed_ceramic', 'enamel']
     else:
         indicators['reflectivity'] = 'low'
-        indicators['possible_materials'] = ['wood', 'fabric', 'paper', 'matte_surface']
+        indicators['possible_materials'] = ['wood', 'fabric', 'paper', 'matte_surface', 'rubber']
     
     # Edge patterns (for texture)
     edges = cv2.Canny(gray, 50, 150)
@@ -305,10 +448,13 @@ def _analyze_material_indicators(image):
     
     if edge_density > 0.1:
         indicators['texture_level'] = 'high'
+        indicators['surface'] = 'textured'
     elif edge_density > 0.05:
         indicators['texture_level'] = 'medium'
+        indicators['surface'] = 'slightly_textured'
     else:
         indicators['texture_level'] = 'low'
+        indicators['surface'] = 'smooth'
     
     return indicators
 
@@ -328,14 +474,18 @@ def _analyze_condition_indicators(image, object_type):
     if scratch_ratio > 0.15:
         condition_score -= 4
         indicators['scratches'] = 'heavy'
+        indicators['damage_level'] = 'high'
     elif scratch_ratio > 0.08:
         condition_score -= 2
         indicators['scratches'] = 'moderate'
+        indicators['damage_level'] = 'medium'
     elif scratch_ratio > 0.03:
         condition_score -= 1
         indicators['scratches'] = 'light'
+        indicators['damage_level'] = 'low'
     else:
         indicators['scratches'] = 'none'
+        indicators['damage_level'] = 'none'
     
     # Color fading (variance in color)
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
@@ -344,11 +494,14 @@ def _analyze_condition_indicators(image, object_type):
     if saturation_variance < 100:
         condition_score -= 2
         indicators['fading'] = 'yes'
+        indicators['color_preservation'] = 'poor'
     elif saturation_variance < 200:
         condition_score -= 1
         indicators['fading'] = 'slight'
+        indicators['color_preservation'] = 'fair'
     else:
         indicators['fading'] = 'no'
+        indicators['color_preservation'] = 'good'
     
     # Ensure score stays within bounds
     condition_score = max(0, min(10, condition_score))
@@ -440,8 +593,8 @@ def generate_detailed_report(object_type, condition, features=None, confidence=0
 
 def comprehensive_object_assessment(object_type, bbox, frame, confidence):
     """Perform comprehensive assessment of an object"""
-    # Visual analysis
-    features = analyze_object_visual_features(frame, bbox, object_type)
+    # Visual analysis with deep features
+    features = analyze_object_deep_features(frame, bbox, object_type)
     
     # Get knowledge base info
     object_lower = object_type.lower()
@@ -548,7 +701,7 @@ class SimpleKnowledgeBase:
         return self.objects.get(object_name.lower())
     
     def analyze_object_visual_features(self, frame, bbox, object_type):
-        return analyze_object_visual_features(frame, bbox, object_type)
+        return analyze_object_deep_features(frame, bbox, object_type)
     
     def generate_detailed_report(self, object_type, condition, features=None, confidence=0.5):
         return generate_detailed_report(object_type, condition, features, confidence)
