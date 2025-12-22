@@ -3,53 +3,277 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Enhanced configuration
 class Config:
-    # API Keys (set in .env file) - Only OpenAI needed
+    # API Configuration - Only OpenAI is required
     OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', '')
+    
+    # Camera Settings
+    CAMERA_ID = 1
+    PREVIEW_WIDTH = 1280
+    PREVIEW_HEIGHT = 720
+    TARGET_FPS = 30
+    
+    # Model Settings
+    MODEL_PATH = 'models/yolo11n.pt'
+    CONFIDENCE = 0.35
+    IOU_THRESHOLD = 0.45
+    AGNOSTIC_NMS = True
+    MAX_DETECTIONS = 100
+    
+    # Performance Optimization
+    FRAME_SKIP = 1
+    HALF_PRECISION = True
     
     # Voice Settings
     WAKE_WORD = "hey jade"
-    VOICE_GENDER = "female"  # "male" or "female"
+    VOICE_GENDER = "female"
     SPEAKING_RATE = 180
+    AUTO_START_VOICE = True
     
-    # Voice Activation Settings
-    WAKE_WORD_SENSITIVITY = 0.7
-    SPEECH_TIMEOUT = 5
-    PHRASE_TIME_LIMIT = 7
-    
-    # Camera Settings
-    CAMERA_ID = 2  # Default camera(0,1,2,3,4)
-    PREVIEW_WIDTH = 1280
-    PREVIEW_HEIGHT = 720
-    
-    # Detection Settings
-    MODEL_PATH = 'models/yolo11n.pt'
-    CONFIDENCE = 0.5  # Lowered for more detections
-    MAX_DETECTIONS = 50
-    IOU_THRESHOLD = 0.45
-    AGNOSTIC_NMS = True
+    # Audio Settings
+    AUDIO_SAMPLE_RATE = 44100
+    AUDIO_CHUNK_SIZE = 4096
+    NOISE_REDUCTION_ENABLED = True
     
     # Analysis Settings
-    ENABLE_DETAILED_ANALYSIS = True
-    SAVE_ANALYSIS_REPORTS = True
+    ENABLE_DEEP_ANALYSIS = True
+    ENABLE_REALTIME_TRACKING = False  # Disabled by default
+    
+    # Logging & Storage
+    LOG_FILE = 'logs/detections.jsonl'
+    MAX_LOG_SIZE_MB = 50
     REPORT_DIR = 'reports'
     
-    # Application Settings
-    TARGET_FPS = 30
-    FRAME_SKIP = 2  # Process every 2nd frame for performance
+    # Display Settings
+    SHOW_FPS = True
+    SHOW_CONFIDENCE = True
+    SHOW_TRACKING_IDS = False
+    THEME = "dark"
     
-    # Logging
-    LOG_FILE = 'logs/detections.jsonl'
-    MAX_LOG_SIZE_MB = 10
+    @property
+    def model_device(self):
+        import torch
+        if torch.cuda.is_available():
+            return 'cuda'
+        elif torch.backends.mps.is_available():
+            return 'mps'
+        return 'cpu'
     
-    # GUI Settings
-    PREVIEW_SIZE = (1280, 720)
+    @property
+    def model_dtype(self):
+        if self.HALF_PRECISION:
+            import torch
+            return torch.float16
+        return None
 
 # Create instance for easy access
 config = Config()
 
-# Export individual variables for backward compatibility
+def setup_directories():
+    """Create all necessary directories"""
+    directories = [
+        'models',
+        'logs',
+        'voice_logs', 
+        'reports',
+        'exports',
+        'exports/images',
+        'exports/videos',
+        'datasets/train/images', 
+        'datasets/train/labels',
+        'datasets/val/images', 
+        'datasets/val/labels',
+        'datasets/test/images', 
+        'datasets/test/labels'
+    ]
+    
+    for directory in directories:
+        try:
+            os.makedirs(directory, exist_ok=True)
+        except Exception as e:
+            print(f"⚠️  Could not create {directory}: {e}")
+
+def check_api_keys():
+    """Check if required API keys are available"""
+    print("🔑 Checking API keys...")
+    
+    # Check OpenAI API key
+    if not config.OPENAI_API_KEY or config.OPENAI_API_KEY == 'your_openai_key_here_optional':
+        print("⚠️  OpenAI API key not set or using placeholder")
+        print("   Note: OpenAI API is optional for basic functionality")
+        print("   Get key from: https://platform.openai.com/api-keys")
+        return False
+    
+    # Check if key looks valid
+    if config.OPENAI_API_KEY.startswith('sk-') and len(config.OPENAI_API_KEY) > 30:
+        print("✅ OpenAI API key found")
+        return True
+    else:
+        print("⚠️  OpenAI API key format looks invalid")
+        return False
+
+def check_dependencies():
+    """Check if all required dependencies are installed"""
+    dependencies = [
+        ('opencv-python', 'cv2'),
+        ('numpy', 'numpy'),
+        ('torch', 'torch'),
+        ('ultralytics', 'ultralytics'),
+        ('speechrecognition', 'speech_recognition'),
+        ('pyttsx3', 'pyttsx3'),
+        ('pyaudio', 'pyaudio'),
+        ('python-dotenv', 'dotenv'),
+    ]
+    
+    print("📦 Checking dependencies...")
+    missing = []
+    
+    for pip_name, import_name in dependencies:
+        try:
+            __import__(import_name)
+            print(f"✅ {pip_name}")
+        except ImportError:
+            print(f"❌ {pip_name}")
+            missing.append(pip_name)
+    
+    if missing:
+        print(f"\n⚠️  Missing dependencies: {', '.join(missing)}")
+        print("   Run: pip install " + " ".join(missing))
+        return False
+    
+    print("✅ All dependencies installed")
+    return True
+
+def check_camera():
+    """Check camera availability"""
+    print("📷 Checking camera...")
+    
+    try:
+        import cv2
+        
+        # Try default camera
+        cap = cv2.VideoCapture(config.CAMERA_ID)
+        if not cap.isOpened():
+            # Try alternative cameras
+            for cam_id in [1, 2, 0]:
+                cap = cv2.VideoCapture(cam_id)
+                if cap.isOpened():
+                    print(f"✅ Camera found: ID {cam_id}")
+                    cap.release()
+                    return True, cam_id
+            print("❌ No camera found")
+            return False, config.CAMERA_ID
+        
+        ret, frame = cap.read()
+        if ret:
+            print(f"✅ Camera {config.CAMERA_ID}: {frame.shape[1]}x{frame.shape[0]}")
+        else:
+            print(f"❌ Camera {config.CAMERA_ID} found but cannot read frames")
+        
+        cap.release()
+        return ret, config.CAMERA_ID
+        
+    except Exception as e:
+        print(f"❌ Camera check error: {e}")
+        return False, config.CAMERA_ID
+
+def check_model():
+    """Check if YOLO model exists or can be downloaded"""
+    print("🤖 Checking model...")
+    
+    if os.path.exists(config.MODEL_PATH):
+        file_size = os.path.getsize(config.MODEL_PATH) / (1024 * 1024)  # MB
+        print(f"✅ Model found: {config.MODEL_PATH} ({file_size:.1f} MB)")
+        return True
+    else:
+        print(f"⚠️  Model not found: {config.MODEL_PATH}")
+        print("   It will be downloaded automatically on first run")
+        return False
+
+def initialize_system():
+    """Initialize the entire system"""
+    print("="*60)
+    print("🚀 JADE System Initialization")
+    print("="*60)
+    
+    # Step 1: Create directories
+    print("\n1. Setting up directories...")
+    setup_directories()
+    print("✅ Directories created")
+    
+    # Step 2: Check dependencies
+    print("\n2. Checking dependencies...")
+    deps_ok = check_dependencies()
+    
+    # Step 3: Check API keys
+    print("\n3. Checking API keys...")
+    api_ok = check_api_keys()
+    
+    # Step 4: Check camera
+    print("\n4. Checking camera...")
+    camera_ok, camera_id = check_camera()
+    
+    # Step 5: Check model
+    print("\n5. Checking model...")
+    model_ok = check_model()
+    
+    # Step 6: System info
+    print("\n6. System Information:")
+    import platform
+    import sys
+    
+    print(f"   Python: {sys.version.split()[0]}")
+    print(f"   Platform: {platform.platform()}")
+    print(f"   Processor: {platform.processor()}")
+    
+    try:
+        import torch
+        print(f"   PyTorch: {torch.__version__}")
+        print(f"   Device: {config.model_device}")
+        if torch.cuda.is_available():
+            print(f"   CUDA: {torch.version.cuda}")
+            print(f"   GPU: {torch.cuda.get_device_name(0)}")
+    except:
+        print("   PyTorch: Not available")
+    
+    print("\n" + "="*60)
+    
+    # Summary
+    print("📊 INITIALIZATION SUMMARY:")
+    print(f"   Dependencies: {'✅ OK' if deps_ok else '❌ Missing'}")
+    print(f"   API Keys: {'✅ Found' if api_ok else '⚠️  Missing (optional)'}")
+    print(f"   Camera: {'✅ Found' if camera_ok else '❌ Not found'}")
+    print(f"   Model: {'✅ Found' if model_ok else '⚠️  Will download on first run'}")
+    
+    return camera_ok or deps_ok  # Return True if either camera or dependencies are OK
+
+if __name__ == "__main__":
+    # Run initialization
+    success = initialize_system()
+    
+    if success:
+        print("\n🎯 CONFIGURATION READY:")
+        print(f"   Camera ID: {config.CAMERA_ID}")
+        print(f"   Resolution: {config.PREVIEW_WIDTH}x{config.PREVIEW_HEIGHT}")
+        print(f"   Model: {config.MODEL_PATH}")
+        print(f"   Confidence: {config.CONFIDENCE}")
+        print(f"   Voice: {config.VOICE_GENDER} at {config.SPEAKING_RATE} WPM")
+        print(f"   Wake Word: '{config.WAKE_WORD}'")
+        
+        print("\n🚀 To start JADE:")
+        print("   python main.py")
+        
+        print("\n🎤 Voice Commands:")
+        print("   • 'Hey jade' - Wake phrase")
+        print("   • 'Analyze object' - Analyze current view")
+        print("   • 'What do you see' - Describe scene")
+    else:
+        print("\n❌ INITIALIZATION FAILED")
+        print("   Please fix the issues above and try again")
+    
+    print("="*60)
+
+# Export individual variables for backward compatibility (keep at end of file)
 LOG_FILE = config.LOG_FILE
 MAX_LOG_SIZE_MB = config.MAX_LOG_SIZE_MB
 OPENAI_API_KEY = config.OPENAI_API_KEY
@@ -63,37 +287,25 @@ MODEL_PATH = config.MODEL_PATH
 CONFIDENCE = config.CONFIDENCE
 TARGET_FPS = config.TARGET_FPS
 FRAME_SKIP = config.FRAME_SKIP
-PREVIEW_SIZE = config.PREVIEW_SIZE
 
 # Enhanced detection settings
 MAX_DETECTIONS = config.MAX_DETECTIONS
 IOU_THRESHOLD = config.IOU_THRESHOLD
 AGNOSTIC_NMS = config.AGNOSTIC_NMS
 
-# Voice activation settings
-WAKE_WORD_SENSITIVITY = config.WAKE_WORD_SENSITIVITY
-SPEECH_TIMEOUT = config.SPEECH_TIMEOUT
-PHRASE_TIME_LIMIT = config.PHRASE_TIME_LIMIT
-
 # Analysis settings
-ENABLE_DETAILED_ANALYSIS = config.ENABLE_DETAILED_ANALYSIS
-SAVE_ANALYSIS_REPORTS = config.SAVE_ANALYSIS_REPORTS
+ENABLE_DEEP_ANALYSIS = config.ENABLE_DEEP_ANALYSIS
+ENABLE_REALTIME_TRACKING = config.ENABLE_REALTIME_TRACKING
 REPORT_DIR = config.REPORT_DIR
 
-# API Keys dictionary (only OpenAI)
-API_KEYS = {
-    'openai': config.OPENAI_API_KEY
-}
-
-# Enhanced Voice Settings dictionary
+# Voice Settings dictionary
 VOICE_SETTINGS = {
     'wake_word': config.WAKE_WORD,
     'voice_gender': config.VOICE_GENDER,
     'speaking_rate': config.SPEAKING_RATE,
-    'auto_start': True,
-    'wake_word_sensitivity': config.WAKE_WORD_SENSITIVITY,
-    'speech_timeout': config.SPEECH_TIMEOUT,
-    'phrase_time_limit': config.PHRASE_TIME_LIMIT
+    'auto_start': config.AUTO_START_VOICE,
+    'noise_reduction': config.NOISE_REDUCTION_ENABLED,
+    'sample_rate': config.AUDIO_SAMPLE_RATE
 }
 
 # Detection Settings dictionary
@@ -102,35 +314,6 @@ DETECTION_SETTINGS = {
     'confidence': config.CONFIDENCE,
     'max_detections': config.MAX_DETECTIONS,
     'iou_threshold': config.IOU_THRESHOLD,
-    'agnostic_nms': config.AGNOSTIC_NMS
+    'agnostic_nms': config.AGNOSTIC_NMS,
+    'device': config.model_device
 }
-
-# Create .env template if not exists
-def create_env_template():
-    if not os.path.exists('.env'):
-        with open('.env', 'w') as f:
-            f.write("""# JADE Voice Assistant API Keys
-# Get key from: https://platform.openai.com/api-keys
-
-OPENAI_API_KEY=your_openai_key_here
-
-# Optional keys (not required for basic functionality)
-# GOOGLE_SEARCH_API_KEY=your_key_here
-""")
-        print("📄 Created .env template file")
-        print("⚠️  Please edit .env with your OpenAI API key")
-
-# Create reports directory if not exists
-def create_directories():
-    directories = ['logs', 'voice_logs', 'models', 'reports', 
-                   'train/images', 'train/labels',
-                   'val/images', 'val/labels',
-                   'test/images', 'test/labels']
-    
-    for directory in directories:
-        os.makedirs(directory, exist_ok=True)
-
-if __name__ == "__main__":
-    create_env_template()
-    create_directories()
-    print("✅ Configuration loaded and directories created")

@@ -5,97 +5,92 @@ import os
 def check_and_install():
     """Check and install required packages"""
     required_packages = [
-        'opencv-python',
-        'numpy',
-        'torch',
-        'torchvision',
-        'ultralytics',
-        'speechrecognition',
-        'pyttsx3',
-        'pyaudio',
-        'requests',
-        'python-dotenv',
-        'scikit-image',      # Added for GLCM features
-        'scikit-learn',      # Added for KMeans clustering
-        'pyyaml'            # Added for training config
+        'opencv-python>=4.8.0',
+        'numpy>=1.24.0',
+        'torch>=2.0.0',
+        'torchvision>=0.15.0',
+        'ultralytics>=8.0.0',
+        'speechrecognition>=3.10.0',
+        'pyttsx3>=2.90',
+        'pyaudio>=0.2.11',
+        'noisereduce>=1.0.0',
+        'psutil>=5.9.0',
+        'gputil>=1.4.0',
+        'msgpack>=1.0.0',
+        'scikit-learn>=1.3.0',
+        'scikit-image>=0.21.0',
+        'python-dotenv>=1.0.0',
+        'sounddevice>=0.4.6',
+        'boxmot>=10.0.0',
+        'pyyaml>=6.0'
     ]
     
     print("📦 Checking/installing required packages...")
     
     for package in required_packages:
+        package_name = package.split('>=')[0].split('[')[0]
         try:
-            __import__(package.replace('-', '_').split('[')[0])
-            print(f"✅ {package} already installed")
+            __import__(package_name.replace('-', '_'))
+            print(f"✅ {package_name} already installed")
         except ImportError:
-            print(f"⬇️  Installing {package}...")
+            print(f"⬇️  Installing {package_name}...")
             try:
                 subprocess.check_call([sys.executable, "-m", "pip", "install", package])
-                print(f"✅ {package} installed successfully")
+                print(f"✅ {package_name} installed successfully")
             except:
-                print(f"❌ Failed to install {package}")
+                print(f"❌ Failed to install {package_name}")
                 print(f"   Try: pip install {package}")
     
     print("\n✅ Installation complete!")
     
-    # Create necessary directories
-    directories = ['models', 'logs', 'voice_logs', 'train/images', 'train/labels', 
-                   'val/images', 'val/labels', 'test/images', 'test/labels', 'reports']
+    # Create directories
+    directories = [
+        'models', 'logs', 'voice_logs', 'reports', 'cache',
+        'exports/images', 'exports/videos',
+        'datasets/train/images', 'datasets/train/labels',
+        'datasets/val/images', 'datasets/val/labels',
+        'datasets/test/images', 'datasets/test/labels'
+    ]
+    
     for directory in directories:
         os.makedirs(directory, exist_ok=True)
-        print(f"📁 Created directory: {directory}")
+        print(f"📁 Created: {directory}")
     
-    # Check for YOLO model
-    model_path = 'models/yolo11n.pt'
-    if not os.path.exists(model_path):
-        print(f"\n⚠️  Model not found at {model_path}")
-        print("   The model will be downloaded automatically on first run.")
-    
-    print("\n🎤 Voice System Check:")
-    
-    # Test speech recognition
+    # Download YOLO model
+    print("\n📥 Downloading YOLO model...")
     try:
-        import speech_recognition as sr
-        print("✅ SpeechRecognition: OK")
-    except:
-        print("❌ SpeechRecognition: Failed")
+        from ultralytics import YOLO
+        model = YOLO('yolo11n.pt')  # Standard model
+        print("✅ Model downloaded")
+    except Exception as e:
+        print(f"❌ Model download failed: {e}")
+        print("   Model will download on first run")
     
-    # Test text-to-speech
-    try:
-        import pyttsx3
-        engine = pyttsx3.init()
-        print("✅ pyttsx3: OK")
-    except:
-        print("❌ pyttsx3: Failed")
-    
-    # Test pyaudio
-    try:
-        import pyaudio
-        print("✅ pyaudio: OK")
-    except:
-        print("❌ pyaudio: Failed")
-        print("   On Linux: sudo apt-get install python3-pyaudio")
-        print("   On Mac: brew install portaudio")
-        print("   On Windows: pip install pipwin then pipwin install pyaudio")
-    
-    print("\n🔧 Configuration Setup:")
-    
-    # Create .env template if not exists
+    # Create .env template
     if not os.path.exists('.env'):
         with open('.env', 'w') as f:
-            f.write("""# JADE Voice Assistant API Key
-# Get key from: https://platform.openai.com/api-keys
-# Note: OpenAI API key is optional for basic functionality
+            f.write("""# JADE Configuration
 
-OPENAI_API_KEY=your_openai_key_here_optional
+# OpenAI API Key (Optional)
+OPENAI_API_KEY=your_key_here_optional
 
-# Without OpenAI key, JADE will use built-in knowledge base
-# for object analysis and basic conversation
+# Camera Settings
+# CAMERA_ID=0
+
+# Voice Settings
+# WAKE_WORD=hey jade
+# VOICE_GENDER=female
 """)
-        print("📄 Created .env template file")
-        print("ℹ️  OpenAI API key is optional for basic functionality")
-    else:
-        print("✅ .env file already exists")
+        print("📄 Created .env template")
+    
+    print("\n" + "="*60)
+    print("🚀 JADE Setup Complete!")
+    print("="*60)
+    print("\nTo start JADE:")
+    print("  python main.py")
+    print("\nFor testing:")
+    print("  python test_voice.py")
+    print("="*60)
 
 if __name__ == "__main__":
     check_and_install()
-    print("\n🚀 Setup complete! Run 'python main.py' to start JADE")

@@ -2,73 +2,63 @@ import cv2
 import time
 import numpy as np
 from datetime import datetime
-import uuid
-import threading
-import config
-from Jade import JADEVoiceAssistant, JADEBaseAssistant
+import json
+import os
+from config import config
+from JadeAssistant import JadeAssistant
+from knowledge_base import knowledge_base, generate_detailed_report, analyze_object_visual_features
 from outtxt import DetectionLogger
-from knowledge_base import (
-    analyze_object_visual_features,
-    estimate_condition_from_features,
-    generate_detailed_report,
-    format_report_for_display
-)
-from JadeAssistant import JadeAssistant  # Import the detector
+from Jade import JADEBaseAssistant, JADEVoiceAssistant
 
 class JADEUniversalAnalyzer:
     def __init__(self):
-        """Initialize JADE analyzer with voice capabilities"""
-        self.session_id = str(uuid.uuid4())[:8]
+        """Initialize JADE analyzer"""
+        self.session_id = f"session_{int(time.time())}"
         print(f"🚀 JADE Universal Analyzer Session: {self.session_id}")
         
-        # Initialize logger
+        # Initialize components
         self.logger = DetectionLogger()
+        self.detector = JadeAssistant(
+            model_path=config.MODEL_PATH,
+            confidence=config.CONFIDENCE
+        )
         
-        # Initialize detector
-        self.detector = JadeAssistant(model_path=config.MODEL_PATH, 
-                                    confidence=config.CONFIDENCE)
-        
-        # Initialize AI Assistant (using base class)
         self.assistant = JADEBaseAssistant()
-        
-        # Initialize Voice Assistant
         self.voice_assistant = JADEVoiceAssistant(
             self.assistant,
-            wake_word=config.VOICE_SETTINGS['wake_word'],
-            voice_gender=config.VOICE_SETTINGS['voice_gender'],
-            speaking_rate=config.VOICE_SETTINGS['speaking_rate']
+            wake_word=config.WAKE_WORD,
+            voice_gender=config.VOICE_GENDER,
+            speaking_rate=config.SPEAKING_RATE
         )
         
         # Initialize camera
-        self.camera_id = config.CAMERA_ID
         self.cap = self._initialize_camera()
         if not self.cap:
-            return
+            raise RuntimeError("Failed to initialize camera")
         
-        # State tracking
-        self.voice_active = config.VOICE_SETTINGS['auto_start']
-        self.show_chat = False
-        self.chat_input = ""
-        self.selected_object = None
-        self.current_detections = []
-        self.object_reports = {}
+        # State
+        self.voice_enabled = False  # Start with voice disabled to avoid audio issues
+        self.show_sidebar = True
+        self.frame_count = 0
+        self.start_time = time.time()
         
-        print("✅ JADE Voice-Enabled Analyzer Initialized")
-        print("🎤 Voice assistant ready - Say 'hey jade' to start!")
-        print("📦 Using built-in knowledge base for object analysis")
+        print("✅ JADE Object Analyzer Initialized")
+        print("⚠️  Voice disabled by default (press 'V' to enable)")
+        print("🎯 Point camera at objects to analyze them")
     
     def _initialize_camera(self):
         """Initialize camera"""
-        cap = cv2.VideoCapture(self.camera_id)
+        cap = cv2.VideoCapture(config.CAMERA_ID)
+        
         if not cap.isOpened():
-            for alt_id in [1, 2, 0]:
-                cap = cv2.VideoCapture(alt_id)
+            for cam_id in [1, 2, 0]:
+                cap = cv2.VideoCapture(cam_id)
                 if cap.isOpened():
-                    self.camera_id = alt_id
+                    print(f"✅ Using camera {cam_id}")
                     break
         
         if not cap.isOpened():
-            print("❌ No camera available!")
+            print("❌ No camera available")
             return None
         
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, config.PREVIEW_WIDTH)
@@ -76,71 +66,56 @@ class JADEUniversalAnalyzer:
         
         return cap
     
-    def start_voice_assistant(self):
-        """Start voice assistant"""
-        if self.voice_active:
-            self.voice_assistant.start_listening()
-            return "🎤 Voice assistant started!"
-        return "Voice is disabled. Press 'V' to enable."
-    
-    def stop_voice_assistant(self):
-        """Stop voice assistant"""
-        self.voice_assistant.stop_listening()
-        return "🎤 Voice assistant stopped."
-    
-    def toggle_voice(self):
-        """Toggle voice on/off"""
-        self.voice_active = not self.voice_active
-        
-        if self.voice_active:
-            return self.start_voice_assistant()
-        else:
-            return self.stop_voice_assistant()
-    
     def _process_frame(self, frame):
         """Process a single frame"""
-        processed_frame, detections = self.detector.detect(frame)
-        self.current_detections = detections
-        
-        # Log detection
-        detection_data = {
-            'detections': detections,
-            'frame_width': frame.shape[1],
-            'frame_height': frame.shape[0],
-            'fps': 0,  # Will be calculated elsewhere
-            'session_id': self.session_id
-        }
-        self.logger.log_detection(detection_data)
+        # Run detection
+        display_frame, detections = self.detector.detect(frame)
         
         # Analyze detected objects
-        reports = []
+        object_assessments = []
+        for det in detections[:5]:  # Limit to 5 for performance
+            try:
+                features = analyze_object_visual_features(
+                    frame, det.bbox, det.class_name
+                )
+                condition = features.get('condition_indicators', {}).get('overall_condition', 'unknown') if features else 'unknown'
+                assessment = generate_detailed_report(
+                    det.class_name, 
+                    condition,
+                    features,
+                    det.confidence
+                )
+                assessment['bbox'] = det.bbox
+                object_assessments.append(assessment)
+            except Exception as e:
+                continue
+        
+        # Log detection
+        detection_data = []
         for det in detections:
-            report = self._analyze_object(frame, det)
-            reports.append(report)
+            detection_data.append({
+                'class_name': det.class_name,
+                'confidence': det.confidence,
+                'bbox': det.bbox,
+                'area': det.area
+            })
         
-        return processed_frame, detections, reports
+        self.logger.log_detection({
+            'detections': detection_data,
+            'frame_width': frame.shape[1],
+            'frame_height': frame.shape[0],
+            'fps': 0,
+            'session_id': self.session_id
+        })
+        
+        return display_frame, detections, object_assessments
     
-    def _analyze_object(self, frame, detection):
-        """Analyze a detected object"""
-        object_type = detection['class_name']
-        confidence = detection['confidence']
-        bbox = detection['bbox']
-        
-        # Analyze visual features
-        features = analyze_object_visual_features(frame, bbox, object_type)
-        
-        # Estimate condition
-        condition, _ = estimate_condition_from_features(features, object_type)
-        
-        # Generate report
-        report = generate_detailed_report(object_type, condition, features, confidence)
-        report['bbox'] = bbox
-        
-        return report
-    
-    def _draw_interface(self, frame, detections, reports, fps):
+    def _draw_interface(self, frame, detections, assessments):
         """Draw user interface"""
         h, w = frame.shape[:2]
+        
+        if not self.show_sidebar:
+            return frame
         
         # Create sidebar
         sidebar_width = 300
@@ -148,11 +123,14 @@ class JADEUniversalAnalyzer:
         sidebar[:, :] = (40, 40, 40)
         
         # Title
-        voice_icon = "🎤" if self.voice_active else "🔇"
+        voice_icon = "🎤" if self.voice_enabled else "🔇"
         cv2.putText(sidebar, f"JADE {voice_icon}", (10, 30), 
                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
         
-        # Status info
+        # Performance info
+        perf_stats = self.detector.get_performance_stats()
+        fps = perf_stats.get('avg_fps', 0)
+        
         y_offset = 60
         cv2.putText(sidebar, f"FPS: {fps:.1f}", (10, y_offset), 
                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (200, 200, 200), 1)
@@ -167,193 +145,244 @@ class JADEUniversalAnalyzer:
         y_offset += 40
         
         # Voice status
-        if self.voice_active:
-            status = "ACTIVE" if self.voice_assistant.is_awake else "LISTENING"
-            color = (0, 255, 0) if self.voice_assistant.is_awake else (255, 255, 0)
-            cv2.putText(sidebar, f"Voice: {status}", (10, y_offset), 
-                       cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
-            y_offset += 30
-            
-            # Quick commands
-            cv2.putText(sidebar, "Say 'hey jade':", (10, y_offset), 
-                       cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 1)
+        if self.voice_enabled:
+            cv2.putText(sidebar, f"Voice: READY", (10, y_offset), 
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
+            y_offset += 25
+            cv2.putText(sidebar, "Press 'L' to listen", (10, y_offset), 
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 0), 1)
             y_offset += 20
-            
-            commands = ["analyze object", "what do you see", "switch mode"]
-            for cmd in commands:
-                cv2.putText(sidebar, f"• {cmd}", (15, y_offset), 
-                           cv2.FONT_HERSHEY_SIMPLEX, 0.4, (200, 200, 200), 1)
-                y_offset += 18
         
-        # Object list with value estimates
-        if detections and reports:
+        # Object list
+        if assessments:
             y_offset += 10
             cv2.putText(sidebar, "Detected Objects:", (10, y_offset), 
                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 0), 1)
             y_offset += 25
             
-            for i, (det, report) in enumerate(zip(detections[:4], reports[:4])):
+            for i, assessment in enumerate(assessments[:6]):
                 if y_offset > h - 50:
                     break
                 
-                # Truncate object name if too long
-                obj_name = det['class_name']
-                if len(obj_name) > 12:
-                    obj_name = obj_name[:12] + "..."
+                obj_name = assessment['object'][:12] if len(assessment['object']) > 12 else assessment['object']
+                value = assessment.get('estimated_value', 'Unknown')
                 
-                # Get value from report
-                value_text = "Unknown"
-                if 'estimated_value' in report:
-                    value_text = report['estimated_value']
-                
-                obj_text = f"{i+1}. {obj_name}"
-                value_text_display = f"  {value_text}"
-                
-                cv2.putText(sidebar, obj_text, (10, y_offset), 
+                cv2.putText(sidebar, f"{i+1}. {obj_name}", (10, y_offset), 
                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
                 
-                # Draw value in green if available
-                if value_text != "Unknown":
-                    cv2.putText(sidebar, value_text_display, (120, y_offset), 
-                               cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0), 1)
+                if value != "Unknown":
+                    cv2.putText(sidebar, value, (sidebar_width - 80, y_offset), 
+                               cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
                 
                 y_offset += 25
         
         # Help text
-        cv2.putText(sidebar, "V:Voice T:Chat Q:Quit", (10, h - 20), 
+        cv2.putText(sidebar, "V:Voice L:Listen H:Help Q:Quit", (10, h - 20), 
                    cv2.FONT_HERSHEY_SIMPLEX, 0.4, (150, 150, 150), 1)
         
         # Combine with frame
         combined = np.hstack([frame, sidebar])
         
+        # Add FPS to main frame
+        cv2.putText(combined, f"FPS: {fps:.1f}", (w - 120, 30),
+                   cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+        
         return combined
     
     def run(self):
         """Main application loop"""
-        last_time = time.time()
-        fps_history = []
+        print("\n🎯 JADE is running! Press:")
+        print("   V: Toggle voice")
+        print("   L: Listen for command (when voice enabled)")
+        print("   H: Show help")
+        print("   S: Save screenshot")
+        print("   Q: Quit")
         
-        # Start voice assistant
-        if self.voice_active:
-            self.start_voice_assistant()
+        last_frame_time = time.time()
         
         while True:
-            start_time = time.time()
-            
-            # Read frame
-            ret, frame = self.cap.read()
-            if not ret:
-                print("❌ Camera error")
+            try:
+                # Read frame
+                ret, frame = self.cap.read()
+                if not ret:
+                    print("❌ Camera error")
+                    break
+                
+                # Calculate timing
+                current_time = time.time()
+                frame_time = current_time - last_frame_time
+                last_frame_time = current_time
+                
+                # Process frame
+                processed_frame, detections, assessments = self._process_frame(frame)
+                
+                # Draw interface
+                display_frame = self._draw_interface(processed_frame, detections, assessments)
+                
+                # Show frame
+                cv2.imshow('JADE - Object Analyzer', display_frame)
+                
+                # Handle keyboard input
+                key = cv2.waitKey(1) & 0xFF
+                
+                if key == ord('q'):
+                    break
+                elif key == ord('v'):
+                    self._toggle_voice()
+                elif key == ord('l'):
+                    self._listen_command()
+                elif key == ord('h'):
+                    self._show_help()
+                elif key == ord('s'):
+                    self._save_screenshot(display_frame)
+                elif key == ord('1'):
+                    self.voice_assistant.test_voice()
+                elif key == ord('2'):
+                    # Force speak about detected objects
+                    if assessments:
+                        obj = assessments[0]
+                        self.voice_assistant.speak(
+                            f"I see a {obj['object']} with estimated value {obj['estimated_value']}"
+                        )
+                
+                self.frame_count += 1
+                
+            except KeyboardInterrupt:
                 break
-            
-            # Process frame
-            processed_frame, detections, reports = self._process_frame(frame)
-            
-            # Calculate FPS
-            current_time = time.time()
-            fps = 1.0 / (current_time - last_time)
-            last_time = current_time
-            fps_history.append(fps)
-            if len(fps_history) > 30:
-                fps_history.pop(0)
-            
-            avg_fps = sum(fps_history) / len(fps_history) if fps_history else fps
-            
-            # Draw interface
-            display_frame = self._draw_interface(processed_frame, detections, reports, avg_fps)
-            
-            # Show frame
-            cv2.imshow('JADE - Voice Enabled Object Analyzer', display_frame)
-            
-            # Handle keyboard input
-            key = cv2.waitKey(1) & 0xFF
-            
-            if key == ord('q'):
-                break
-            elif key == ord('v'):
-                response = self.toggle_voice()
-                print(response)
-            elif key == ord('t'):
-                # Toggle text chat
-                self.show_chat = not self.show_chat
-                if self.show_chat:
-                    print("💬 Chat mode enabled. Type in console.")
-                    print("Type 'exit' to return to camera view.")
-                    # Simple console chat
-                    while self.show_chat:
-                        try:
-                            user_input = input("You: ")
-                            if user_input.lower() == 'exit':
-                                self.show_chat = False
-                                print("💬 Chat mode disabled.")
-                                break
-                            response = self.assistant.chat(user_input)
-                            print(f"JADE: {response}")
-                        except KeyboardInterrupt:
-                            self.show_chat = False
-                            print("\n💬 Chat mode disabled.")
-                            break
-                else:
-                    print("💬 Chat mode disabled.")
-            elif key == ord('s'):
-                # Record audio sample
-                if self.voice_active:
-                    print("🎙️ Recording 3 seconds of audio...")
-                    audio_data = self.voice_assistant.record_audio_numpy(duration=3)
-                    print(f"✅ Recorded {len(audio_data)} samples")
-            elif key == ord('1') and self.voice_active:
-                # Test voice
-                self.voice_assistant.speak("Voice test successful!")
-            elif key == ord('h'):
-                # Show help
-                print("\n" + "="*50)
-                print("JADE HELP")
-                print("="*50)
-                print("Voice Commands:")
-                print("  • 'Hey jade' - Wake phrase")
-                print("  • 'Analyze object' - Analyze current view")
-                print("  • 'What do you see' - Describe scene")
-                print("  • 'Switch to analysis mode' - Detailed object analysis")
-                print("  • 'Switch to conversational mode' - Chat mode")
-                print("\nKeyboard Shortcuts:")
-                print("  • V: Toggle voice")
-                print("  • T: Toggle text chat")
-                print("  • S: Record audio sample")
-                print("  • H: Show this help")
-                print("  • Q: Quit")
-                print("="*50)
+            except Exception as e:
+                print(f"❌ Main loop error: {e}")
+                time.sleep(0.1)
+    
+    def _toggle_voice(self):
+        """Toggle voice assistant"""
+        self.voice_enabled = not self.voice_enabled
+        
+        if self.voice_enabled:
+            self.voice_assistant.start_listening()
+            self.voice_assistant.speak("Voice assistant activated!")
+        else:
+            self.voice_assistant.stop_listening()
+            self.voice_assistant.speak("Voice assistant deactivated.")
+        
+        print(f"Voice assistant: {'ON' if self.voice_enabled else 'OFF'}")
+    
+    def _listen_command(self):
+        """Listen for a single command"""
+        if not self.voice_enabled:
+            print("⚠️  Voice assistant is disabled. Press 'V' to enable.")
+            return
+        
+        print("🎤 Listening for command...")
+        text = self.voice_assistant.listen_once()
+        
+        if text:
+            # Process the command
+            command = type('Command', (), {'text': text, 'confidence': 1.0, 'timestamp': time.time()})()
+            self.voice_assistant._handle_command(command)
+    
+    def _show_help(self):
+        """Show help information"""
+        help_text = """
+        JADE OBJECT ANALYZER - HELP
+        
+        Voice Commands (when voice enabled):
+          • "Analyze object" - Analyze current view
+          • "What do you see" - Describe scene
+          • "Switch to analysis mode" - Detailed analysis
+          • "Switch to conversational mode" - Chat mode
+        
+        Keyboard Shortcuts:
+          • V: Toggle voice assistant
+          • L: Listen for command (when voice enabled)
+          • H: Show this help
+          • S: Save screenshot
+          • 1: Test voice output
+          • 2: Speak about detected object
+          • Q: Quit application
+        
+        Tips for Best Performance:
+          1. Ensure good lighting
+          2. Keep objects centered in frame
+          3. Speak clearly and at moderate pace
+        """
+        
+        print(help_text)
+        
+        if self.voice_enabled:
+            self.voice_assistant.speak("Help information displayed.")
+    
+    def _save_screenshot(self, frame):
+        """Save screenshot"""
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        
+        # Create exports directory if it doesn't exist
+        os.makedirs('exports', exist_ok=True)
+        
+        filename = f"exports/screenshot_{timestamp}.jpg"
+        cv2.imwrite(filename, frame)
+        print(f"✅ Screenshot saved: {filename}")
+        
+        if self.voice_enabled:
+            self.voice_assistant.speak("Screenshot saved.")
     
     def cleanup(self):
         """Cleanup resources"""
+        print("\n🛑 Shutting down JADE...")
+        
         if hasattr(self, 'cap'):
             self.cap.release()
         
-        cv2.destroyAllWindows()
-        
         if hasattr(self, 'voice_assistant'):
-            self.voice_assistant.stop_listening()
             self.voice_assistant.cleanup()
         
-        print("\n✅ JADE shutdown complete")
+        if hasattr(self, 'logger'):
+            self.logger.stop()
+        
+        cv2.destroyAllWindows()
+        
+        # Export final report
+        try:
+            total_time = time.time() - self.start_time
+            avg_fps = self.frame_count / total_time if total_time > 0 else 0
+            
+            final_report = {
+                'session_id': self.session_id,
+                'duration_seconds': total_time,
+                'total_frames': self.frame_count,
+                'average_fps': avg_fps,
+                'end_time': datetime.now().isoformat()
+            }
+            
+            # Create reports directory if it doesn't exist
+            os.makedirs('reports', exist_ok=True)
+            
+            with open(f'reports/session_{self.session_id}.json', 'w') as f:
+                json.dump(final_report, f, indent=2)
+            
+            print(f"📄 Session report saved")
+            
+        except Exception as e:
+            print(f"❌ Error saving report: {e}")
+        
+        print("✅ JADE shutdown complete")
 
 def main():
     """Main entry point"""
     print("="*60)
-    print("🤖 JADE VOICE-ENABLED OBJECT ANALYZER")
+    print("🤖 JADE OBJECT ANALYZER")
     print("="*60)
-    print("\n🎤 Voice Commands:")
-    print("  • 'Hey jade' - Wake phrase")
-    print("  • 'Analyze object' - Analyze current view")
-    print("  • 'What do you see' - Describe scene")
-    print("  • 'Switch to [mode]' - Change mode")
+    print("\n🎤 Voice Features (optional):")
+    print("  • Press 'V' to enable voice")
+    print("  • Press 'L' to listen for command")
+    print("  • Press '1' to test voice output")
     print("\n⌨️  Keyboard Shortcuts:")
     print("  • V: Toggle voice")
-    print("  • T: Toggle text chat")
-    print("  • S: Record audio sample")
+    print("  • L: Listen for command")
     print("  • H: Show help")
+    print("  • S: Save screenshot")
     print("  • Q: Quit")
     print("="*60)
-    print("📦 Using built-in knowledge base (no API required)")
+    print("📦 Using built-in knowledge base")
     print("🎯 Point camera at objects to analyze them")
     print("="*60)
     
