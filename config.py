@@ -4,11 +4,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class Config:
-    # API Configuration - Only OpenAI is required
+    # API Configuration
     OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', '')
     
     # Camera Settings
-    CAMERA_ID = 1
+    CAMERA_ID = int(os.getenv('CAMERA_ID', '0'))
     PREVIEW_WIDTH = 1280
     PREVIEW_HEIGHT = 720
     TARGET_FPS = 30
@@ -21,13 +21,13 @@ class Config:
     MAX_DETECTIONS = 100
     
     # Performance Optimization
-    FRAME_SKIP = 1
+    FRAME_SKIP = 2  # Process every 2nd frame for better performance
     HALF_PRECISION = True
     
     # Voice Settings
-    WAKE_WORD = "hey jade"
-    VOICE_GENDER = "female"
-    SPEAKING_RATE = 180
+    WAKE_WORD = os.getenv('WAKE_WORD', 'hey jade')
+    VOICE_GENDER = os.getenv('VOICE_GENDER', 'female')
+    SPEAKING_RATE = int(os.getenv('SPEAKING_RATE', '180'))
     AUTO_START_VOICE = True
     
     # Audio Settings
@@ -37,7 +37,7 @@ class Config:
     
     # Analysis Settings
     ENABLE_DEEP_ANALYSIS = True
-    ENABLE_REALTIME_TRACKING = False  # Disabled by default
+    ENABLE_REALTIME_TRACKING = False  # Disabled for better performance
     
     # Logging & Storage
     LOG_FILE = 'logs/detections.jsonl'
@@ -123,6 +123,7 @@ def check_dependencies():
         ('pyttsx3', 'pyttsx3'),
         ('pyaudio', 'pyaudio'),
         ('python-dotenv', 'dotenv'),
+        ('requests', 'requests'),
     ]
     
     print("📦 Checking dependencies...")
@@ -159,6 +160,7 @@ def check_camera():
                 cap = cv2.VideoCapture(cam_id)
                 if cap.isOpened():
                     print(f"✅ Camera found: ID {cam_id}")
+                    config.CAMERA_ID = cam_id
                     cap.release()
                     return True, cam_id
             print("❌ No camera found")
@@ -263,10 +265,11 @@ if __name__ == "__main__":
         print("\n🚀 To start JADE:")
         print("   python main.py")
         
-        print("\n🎤 Voice Commands:")
+        print("\n🎤 Voice Commands (Continuous Listening):")
         print("   • 'Hey jade' - Wake phrase")
         print("   • 'Analyze object' - Analyze current view")
         print("   • 'What do you see' - Describe scene")
+        print("   • Speak naturally - I'm always listening")
     else:
         print("\n❌ INITIALIZATION FAILED")
         print("   Please fix the issues above and try again")
