@@ -491,7 +491,7 @@ class JADEVoiceAssistant:
     def test_voice(self):
         """Test voice functionality"""
         print("🔊 Testing voice system...")
-        self.speak("Hello! I am JADE, your personal AI assistant. I'm here to help you analyze objects and answer your questions.")
+        self.speak("Hello! I am JADE,I'm here to help you analyze objects and answer your questions.")
     
     def listen_once(self):
         """Listen for a single command (for keyboard shortcut)"""

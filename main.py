@@ -56,7 +56,7 @@ class JADEUniversalAnalyzer:
             self.voice_assistant.start_continuous_listening()
             print("✅ Voice assistant started with continuous listening")
         
-        print("✅ JADE AI Assistant Initialized")
+        print("✅ JADE Initialized")
         print("👩 Female Voice: ACTIVE (Continuous Listening)")
         print("🔍 Automatic Object Analysis: ENABLED")
         print("🎯 Point camera at objects for instant analysis")
@@ -259,7 +259,7 @@ class JADEUniversalAnalyzer:
         # Title with voice status
         voice_status = "🔊 ACTIVE" if self.voice_enabled else "🔇 MUTED"
         analysis_status = "🔍 ON" if self.auto_analysis_enabled else "👁️ OFF"
-        cv2.putText(sidebar, f"JADE AI ASSISTANT", (10, 30), 
+        cv2.putText(sidebar, f"JADE", (10, 30), 
                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 200, 255), 2)
         cv2.putText(sidebar, f"Voice: {voice_status}", (10, 60), 
                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0) if self.voice_enabled else (100, 100, 100), 1)
@@ -391,7 +391,7 @@ class JADEUniversalAnalyzer:
         combined = np.hstack([frame, sidebar])
         
         # Add FPS and status to main frame
-        status_text = f"JADE AI - {fps:.0f} FPS"
+        status_text = f"JADE - {fps:.0f} FPS"
         cv2.putText(combined, status_text, (w - 200, 30),
                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
         
@@ -405,7 +405,7 @@ class JADEUniversalAnalyzer:
     def run(self):
         """Enhanced main application loop"""
         print("\n" + "="*60)
-        print("🎯 JADE AI Assistant is running!")
+        print("🎯 JADE  is running!")
         print("👩 Voice: Always Active (Like JARVIS)")
         print("🔍 Automatic Object Analysis: Every 3 seconds")
         print("\n📢 You can speak naturally - I'm always listening")
@@ -424,7 +424,7 @@ class JADEUniversalAnalyzer:
         
         # Initial greeting
         if self.voice_enabled:
-            self.voice_assistant.speak("JADE AI Assistant activated. I'm always listening. Point the camera at objects for analysis.")
+            self.voice_assistant.speak("JADE activated. I'm always listening. Point the camera at objects for analysis.")
         
         while True:
             try:
@@ -454,7 +454,7 @@ class JADEUniversalAnalyzer:
                 display_frame = self._draw_enhanced_interface(processed_frame, detections, assessments)
                 
                 # Show frame
-                cv2.imshow('JADE AI Assistant - Object Analyzer', display_frame)
+                cv2.imshow('JADE - Object Analyzer', display_frame)
                 
                 # Handle keyboard input
                 key = cv2.waitKey(1) & 0xFF
@@ -498,12 +498,12 @@ class JADEUniversalAnalyzer:
             self.voice_assistant.stop_listening()
             self.voice_enabled = False
             print("🔇 Voice muted")
-            cv2.displayOverlay('JADE AI Assistant - Object Analyzer', "Voice: MUTED", 1000)
+            cv2.displayOverlay('JADE - Object Analyzer', "Voice: MUTED", 1000)
         else:
             self.voice_assistant.start_continuous_listening()
             self.voice_enabled = True
             print("🔊 Voice activated")
-            cv2.displayOverlay('JADE AI Assistant - Object Analyzer', "Voice: ACTIVE", 1000)
+            cv2.displayOverlay('JADE - Object Analyzer', "Voice: ACTIVE", 1000)
     
     def _toggle_analysis_mute(self):
         """Toggle automatic analysis"""
@@ -512,7 +512,7 @@ class JADEUniversalAnalyzer:
         print(f"🔍 Automatic analysis: {status}")
         
         overlay_text = f"Auto-Analysis: {status}"
-        cv2.displayOverlay('JADE AI Assistant - Object Analyzer', overlay_text, 1000)
+        cv2.displayOverlay('JADE - Object Analyzer', overlay_text, 1000)
         
         if self.voice_enabled:
             self.voice_assistant.speak(f"Automatic analysis {status}")
@@ -537,7 +537,7 @@ class JADEUniversalAnalyzer:
     def _show_enhanced_help(self):
         """Show enhanced help information"""
         help_text = """
-        JADE AI ASSISTANT - HELP GUIDE
+        JADE - HELP GUIDE
         
         VOICE FEATURES (Always Active):
           • "Hey Jade" - Get my attention
@@ -594,7 +594,7 @@ class JADEUniversalAnalyzer:
     
     def cleanup(self):
         """Cleanup resources"""
-        print("\n🛑 Shutting down JADE AI Assistant...")
+        print("\n🛑 Shutting down JADE...")
         
         if hasattr(self, 'cap'):
             self.cap.release()
@@ -637,12 +637,12 @@ class JADEUniversalAnalyzer:
         except Exception as e:
             print(f"❌ Error saving report: {e}")
         
-        print("✅ JADE AI Assistant shutdown complete")
+        print("✅ JADE shutdown complete")
 
 def main():
     """Main entry point"""
     print("="*60)
-    print("🤖 JADE AI ASSISTANT")
+    print("🤖 JADE ")
     print("="*60)
     print("\n👩 VOICE ASSISTANT FEATURES:")
     print("  • Female voice (always active)")
