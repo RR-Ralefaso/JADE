@@ -646,7 +646,7 @@ def main():
     print("="*60)
     print("\n👩 VOICE ASSISTANT FEATURES:")
     print("  • Female voice (always active)")
-    print("  • Continuous listening (like JARVIS)")
+    print("  • Continuous listening ")
     print("  • Natural conversation")
     print("  • Automatic object analysis")
     print("  • Online information lookup")
