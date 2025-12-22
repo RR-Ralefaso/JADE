@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {"timestamp": "2025-12-22T15:04:36.071755", "mode": "conversational", "user_input": null, "response": "Voice assistant activated. Say 'hey jade' to get my attention!"}
 {"timestamp": "2025-12-22T15:04:43.651127", "mode": "conversational", "user_input": null, "response": "Voice assistant deactivated. Goodbye!"}
 {"timestamp": "2025-12-22T15:04:57.010750", "mode": "conversational", "user_input": null, "response": "Voice assistant activated. Say 'hey jade' to get my attention!"}
@@ -11,3 +12,32 @@
 {"timestamp": "2025-12-22T15:07:36.805800", "mode": "conversational", "user_input": null, "response": "Voice assistant activated. Say 'hey jade' to get my attention!"}
 {"timestamp": "2025-12-22T15:07:49.177292", "mode": "conversational", "user_input": null, "response": "I didn't catch that. Could you repeat?"}
 {"timestamp": "2025-12-22T15:07:51.876787", "mode": "conversational", "user_input": null, "response": "Voice assistant deactivated. Goodbye!"}
+=======
+{"timestamp": "2025-12-22T14:43:41.042487", "mode": "conversational", "user_input": null, "response": "Voice assistant activated. Say 'hey jade' to get my attention!"}
+{"timestamp": "2025-12-22T14:43:43.308719", "mode": "conversational", "user_input": null, "response": "Voice assistant deactivated. Goodbye!"}
+{"timestamp": "2025-12-22T14:43:54.488498", "mode": "conversational", "user_input": null, "response": "Voice assistant activated. Say 'hey jade' to get my attention!"}
+{"timestamp": "2025-12-22T14:43:56.782052", "mode": "conversational", "user_input": null, "response": "Voice assistant deactivated. Goodbye!"}
+{"timestamp": "2025-12-22T14:44:22.969416", "mode": "conversational", "user_input": null, "response": "Voice assistant activated. Say 'hey jade' to get my attention!"}
+{"timestamp": "2025-12-22T14:44:25.191396", "mode": "conversational", "user_input": null, "response": "Voice assistant deactivated. Goodbye!"}
+{"timestamp": "2025-12-22T14:54:23.072818", "mode": "conversational", "user_input": null, "response": "Voice assistant activated. Say 'hey jade' to get my attention!"}
+{"timestamp": "2025-12-22T14:54:59.115566", "mode": "conversational", "user_input": null, "response": "Voice assistant deactivated. Goodbye!"}
+{"timestamp": "2025-12-22T14:55:38.717435", "mode": "conversational", "user_input": null, "response": "Voice assistant activated. Say 'hey jade' to get my attention!"}
+{"timestamp": "2025-12-22T14:57:40.682922", "mode": "conversational", "user_input": null, "response": "Yes, I'm listening!"}
+{"timestamp": "2025-12-22T14:57:44.678014", "mode": "conversational", "user_input": null, "response": "I didn't catch that command. Could you repeat?"}
+{"timestamp": "2025-12-22T14:57:48.363515", "mode": "conversational", "user_input": null, "response": "Please point the camera at the object you want me to analyze."}
+{"timestamp": "2025-12-22T14:57:53.586492", "mode": "conversational", "user_input": null, "response": "I didn't catch that. Could you repeat?"}
+{"timestamp": "2025-12-22T14:57:56.322522", "mode": "conversational", "user_input": null, "response": "I didn't catch that. Could you repeat?"}
+{"timestamp": "2025-12-22T14:59:51.744140", "mode": "conversational", "user_input": null, "response": "Voice assistant activated. Say 'hey jade' to get my attention!"}
+{"timestamp": "2025-12-22T15:00:03.636025", "mode": "conversational", "user_input": null, "response": "Yes, I'm listening!"}
+{"timestamp": "2025-12-22T15:00:10.088214", "mode": "conversational", "user_input": null, "response": "I heard: 'analyse the person'. I'm currently in conversational mode. How can I assist you with object analysis?"}
+{"timestamp": "2025-12-22T15:00:15.359715", "mode": "conversational", "user_input": null, "response": "I didn't catch that. Could you repeat?"}
+{"timestamp": "2025-12-22T15:00:18.995746", "mode": "conversational", "user_input": null, "response": "I didn't catch that. Could you repeat?"}
+{"timestamp": "2025-12-22T15:00:28.418723", "mode": "conversational", "user_input": null, "response": "I heard: 'jade analyse the person'. I'm currently in conversational mode. How can I assist you with object analysis?"}
+{"timestamp": "2025-12-22T15:00:34.786013", "mode": "conversational", "user_input": null, "response": "I didn't catch that. Could you repeat?"}
+{"timestamp": "2025-12-22T15:00:38.867795", "mode": "conversational", "user_input": null, "response": "I heard: 'jade'. I'm currently in conversational mode. How can I assist you with object analysis?"}
+{"timestamp": "2025-12-22T15:00:43.161959", "mode": "conversational", "user_input": null, "response": "I heard: 'switch mode'. I'm currently in conversational mode. How can I assist you with object analysis?"}
+{"timestamp": "2025-12-22T15:00:52.173359", "mode": "conversational", "user_input": null, "response": "I didn't catch that. Could you repeat?"}
+{"timestamp": "2025-12-22T15:01:02.004685", "mode": "conversational", "user_input": null, "response": "I heard: 'switch mode why are you so slow'. I'm currently in conversational mode. How can I assist you with object analysis?"}
+{"timestamp": "2025-12-22T15:01:05.894891", "mode": "conversational", "user_input": null, "response": "I didn't catch that. Could you repeat?"}
+{"timestamp": "2025-12-22T15:01:06.125488", "mode": "conversational", "user_input": null, "response": "Voice assistant deactivated. Goodbye!"}
+>>>>>>> VoiceOutPutFeature
