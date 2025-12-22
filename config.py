@@ -11,22 +11,22 @@ class Config:
     CAMERA_ID = int(os.getenv('CAMERA_ID', '0'))
     PREVIEW_WIDTH = 1280
     PREVIEW_HEIGHT = 720
-    TARGET_FPS = 30
+    TARGET_FPS = 60 #30
     
     # Model Settings
     MODEL_PATH = 'models/yolo11n.pt'
-    CONFIDENCE = 0.7
+    CONFIDENCE = 0.5
     IOU_THRESHOLD = 0.45
     AGNOSTIC_NMS = True
-    MAX_DETECTIONS = 100
+    MAX_DETECTIONS = 60 #100
     
     # Performance Optimization
-    FRAME_SKIP = 2  # Process every 2nd frame for better performance
+    FRAME_SKIP = 3  # Process every 2nd frame for better performance --went with 3
     HALF_PRECISION = True
     
     # Voice Settings
     WAKE_WORD = os.getenv('WAKE_WORD', 'hey jade')
-    VOICE_GENDER = os.getenv('VOICE_GENDER', 'female')
+    VOICE_GENDER = os.getenv('VOICE_GENDER', 'Female')
     SPEAKING_RATE = int(os.getenv('SPEAKING_RATE', '180'))
     AUTO_START_VOICE = True
     
@@ -37,7 +37,7 @@ class Config:
     
     # Analysis Settings
     ENABLE_DEEP_ANALYSIS = True
-    ENABLE_REALTIME_TRACKING = False  # Disabled for better performance
+    ENABLE_REALTIME_TRACKING = True  # Disabled for better performance
     
     # Logging & Storage
     LOG_FILE = 'logs/detections.jsonl'
@@ -47,7 +47,8 @@ class Config:
     # Display Settings
     SHOW_FPS = True
     SHOW_CONFIDENCE = True
-    SHOW_TRACKING_IDS = False
+    SHOW_TRACKING_IDS = True #disable for better performance
+    SHOW_BOUNDING_BOXES = True
     THEME = "dark"
     
     @property
