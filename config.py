@@ -15,7 +15,7 @@ class Config:
     
     # Model Settings
     MODEL_PATH = 'models/yolo11n.pt'
-    CONFIDENCE = 0.35
+    CONFIDENCE = 0.7
     IOU_THRESHOLD = 0.45
     AGNOSTIC_NMS = True
     MAX_DETECTIONS = 100
