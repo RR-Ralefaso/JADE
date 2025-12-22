@@ -21,12 +21,12 @@ class Config:
     MAX_DETECTIONS = 60 #100
     
     # Performance Optimization
-    FRAME_SKIP = 3  # Process every 2nd frame for better performance --went with 3
+    FRAME_SKIP = 2  # Process every 2nd frame for better performance 
     HALF_PRECISION = True
     
     # Voice Settings
     WAKE_WORD = os.getenv('WAKE_WORD', 'hey jade')
-    VOICE_GENDER = os.getenv('VOICE_GENDER', 'Female')
+    VOICE_GENDER = os.getenv('VOICE_GENDER', 'female')
     SPEAKING_RATE = int(os.getenv('SPEAKING_RATE', '180'))
     AUTO_START_VOICE = True
     
