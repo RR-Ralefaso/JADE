@@ -1,4 +1,4 @@
-import speech_recognition as sr
+import speech_recognition as sr # type: ignore
 import pyttsx3
 import threading
 import queue
@@ -8,6 +8,7 @@ from datetime import datetime
 from dataclasses import dataclass
 from typing import Optional, Dict, List
 import requests
+
 
 @dataclass
 class VoiceCommand:

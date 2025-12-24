@@ -27,7 +27,7 @@ class Config:
     # Voice Settings
     WAKE_WORD = os.getenv('WAKE_WORD', 'hey jade')
     VOICE_GENDER = os.getenv('VOICE_GENDER', 'female')
-    SPEAKING_RATE = int(os.getenv('SPEAKING_RATE', '180'))
+    SPEAKING_RATE = int(os.getenv('SPEAKING_RATE', '189'))
     AUTO_START_VOICE = True
     
     # Audio Settings
