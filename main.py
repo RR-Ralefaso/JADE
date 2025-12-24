@@ -13,7 +13,7 @@ from Jade import JADEBaseAssistant, JADEVoiceAssistant
 
 class JADEUniversalAnalyzer:
     def __init__(self):
-        """Initialize JADE analyzer with enhanced GUI and performance tracking"""
+        """Initialize JADE analyzer with optimized display"""
         self.session_id = f"session_{int(time.time())}"
         print(f"🚀 JADE Universal Analyzer Session: {self.session_id}")
         
@@ -37,6 +37,21 @@ class JADEUniversalAnalyzer:
         if not self.cap:
             raise RuntimeError("Failed to initialize camera")
         
+        # Get actual camera resolution
+        self.camera_width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        self.camera_height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        
+        print(f"📷 Camera resolution: {self.camera_width}x{self.camera_height}")
+        
+        # Display dimensions - keep original camera resolution
+        self.display_scale = 0.7  # Scale down for better performance
+        self.display_width = int(self.camera_width * self.display_scale)
+        self.display_height = int(self.camera_height * self.display_scale)
+        
+        self.sidebar_width = 350
+        self.total_width = self.display_width + self.sidebar_width
+        self.total_height = self.display_height
+        
         # Enhanced state
         self.voice_enabled = True
         self.show_sidebar = True
@@ -46,18 +61,13 @@ class JADEUniversalAnalyzer:
         self.analysis_interval = 3
         self.auto_analysis_enabled = True
         
-        # GUI enhancement
-        self.sidebar_width = 350
-        self.main_width = config.PREVIEW_WIDTH
-        self.total_width = self.main_width + self.sidebar_width
-        self.height = config.PREVIEW_HEIGHT
-        
         # Performance tracking
         self.fps_history = []
         self.object_count_history = []
         self.confidence_history = []
         self.last_fps_update = time.time()
         self.fps = 0
+        self.last_frame_time = time.time()
         
         # Detection cache for performance
         self.last_detections = []
@@ -84,17 +94,18 @@ class JADEUniversalAnalyzer:
             self.voice_assistant.start_continuous_listening()
             print("✅ Voice assistant started with continuous listening")
         
-        print("✅ JADE Initialized with Enhanced GUI")
+        print("✅ JADE Initialized with Optimized Display")
         print("👩 Female Voice: ACTIVE (Continuous Listening)")
-        print("📊 Performance Graphs: ENABLED")
+        print(f"📺 Display: {self.display_width}x{self.display_height}")
         print("🎯 Point camera at objects for instant analysis")
     
     def _initialize_camera_optimized(self):
-        """Initialize camera with optimized settings for speed"""
+        """Initialize camera with optimized settings for clarity"""
         cap = cv2.VideoCapture(config.CAMERA_ID)
         
         if not cap.isOpened():
-            for cam_id in [1, 2, 0]:
+            print(f"❌ Camera {config.CAMERA_ID} not accessible, trying alternatives...")
+            for cam_id in [1, 2, 0, 3, 4]:
                 cap = cv2.VideoCapture(cam_id)
                 if cap.isOpened():
                     print(f"✅ Using camera {cam_id}")
@@ -103,31 +114,83 @@ class JADEUniversalAnalyzer:
         
         if not cap.isOpened():
             print("❌ No camera available")
+            print("⚠️  Creating test pattern for debugging...")
             return None
         
-        # Optimize camera settings
-        cap.set(cv2.CAP_PROP_FRAME_WIDTH, config.PREVIEW_WIDTH)
-        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, config.PREVIEW_HEIGHT)
-        cap.set(cv2.CAP_PROP_FPS, config.TARGET_FPS)
-        cap.set(cv2.CAP_PROP_BUFFERSIZE, 2)  # Small buffer for lower latency
-        cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
+        # Set camera properties for better quality
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)  # Try for higher resolution
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+        cap.set(cv2.CAP_PROP_FPS, 30)
+        cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))  # Better compression
+        cap.set(cv2.CAP_PROP_AUTOFOCUS, 1)  # Enable autofocus if available
+        cap.set(cv2.CAP_PROP_BRIGHTNESS, 0.5)
+        cap.set(cv2.CAP_PROP_CONTRAST, 0.5)
+        cap.set(cv2.CAP_PROP_SATURATION, 0.5)
+        
+        # Test if we can read a frame
+        ret, test_frame = cap.read()
+        if not ret:
+            print("❌ Cannot read from camera")
+            cap.release()
+            return None
         
         actual_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         actual_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        actual_fps = int(cap.get(cv2.CAP_PROP_FPS))
-        print(f"📷 Camera: {actual_width}x{actual_height} @ {actual_fps}FPS")
+        print(f"✅ Camera initialized: {actual_width}x{actual_height}")
         
         return cap
     
+    def _enhance_frame_quality(self, frame):
+        """Enhance frame quality with denoising and sharpening"""
+        if frame is None or frame.size == 0:
+            return frame
+        
+        # Convert to float for processing
+        frame_float = frame.astype(np.float32) / 255.0
+        
+        # 1. Denoise
+        denoised = cv2.fastNlMeansDenoisingColored(frame, None, 10, 10, 7, 21)
+        
+        # 2. Adaptive histogram equalization for contrast
+        lab = cv2.cvtColor(denoised, cv2.COLOR_BGR2LAB)
+        l, a, b = cv2.split(lab)
+        
+        # Apply CLAHE to L-channel
+        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+        l = clahe.apply(l)
+        
+        # Merge channels
+        enhanced_lab = cv2.merge([l, a, b])
+        enhanced = cv2.cvtColor(enhanced_lab, cv2.COLOR_LAB2BGR)
+        
+        # 3. Mild sharpening
+        kernel = np.array([[0, -0.5, 0],
+                          [-0.5, 3, -0.5],
+                          [0, -0.5, 0]])
+        sharpened = cv2.filter2D(enhanced, -1, kernel)
+        
+        # 4. Adjust brightness and contrast
+        alpha = 1.1  # Contrast control (1.0-3.0)
+        beta = 10    # Brightness control (0-100)
+        adjusted = cv2.convertScaleAbs(sharpened, alpha=alpha, beta=beta)
+        
+        return adjusted
+    
     def _draw_enhanced_gui(self, frame, detections, assessments):
-        """Draw enhanced GUI with modern design"""
+        """Draw enhanced GUI with clear camera display"""
+        # Enhance frame quality
+        enhanced_frame = self._enhance_frame_quality(frame)
+        
+        # Resize frame for display (maintain aspect ratio)
+        display_frame = cv2.resize(enhanced_frame, (self.display_width, self.display_height), 
+                                  interpolation=cv2.INTER_LINEAR)
+        
         # Create main display with sidebar
-        display = np.zeros((self.height, self.total_width, 3), dtype=np.uint8)
+        display = np.zeros((self.total_height, self.total_width, 3), dtype=np.uint8)
         display[:, :, :] = self.colors['dark']
         
-        # Add camera frame
-        if frame.shape[0] == self.height and frame.shape[1] == self.main_width:
-            display[0:self.height, 0:self.main_width] = frame
+        # Add camera frame to left side
+        display[0:self.display_height, 0:self.display_width] = display_frame
         
         # Add sidebar
         self._draw_sidebar(display, detections, assessments)
@@ -138,32 +201,77 @@ class JADEUniversalAnalyzer:
         # Add FPS counter
         self._draw_fps_counter(display)
         
+        # Add grid overlay for better visual reference
+        self._draw_grid_overlay(display)
+        
         return display
+    
+    def _draw_grid_overlay(self, display):
+        """Add subtle grid overlay for better visual reference"""
+        grid_color = (40, 40, 50)
+        grid_alpha = 0.3
+        
+        # Create grid overlay
+        overlay = display.copy()
+        
+        # Vertical lines
+        for x in range(0, self.display_width, 50):
+            cv2.line(overlay, (x, 0), (x, self.display_height), grid_color, 1)
+        
+        # Horizontal lines
+        for y in range(0, self.display_height, 50):
+            cv2.line(overlay, (0, y), (self.display_width, y), grid_color, 1)
+        
+        # Center crosshair
+        center_x = self.display_width // 2
+        center_y = self.display_height // 2
+        cv2.line(overlay, (center_x - 20, center_y), (center_x + 20, center_y), 
+                (255, 100, 100), 2)
+        cv2.line(overlay, (center_x, center_y - 20), (center_x, center_y + 20), 
+                (255, 100, 100), 2)
+        
+        # Blend overlay
+        cv2.addWeighted(overlay, grid_alpha, display, 1 - grid_alpha, 0, display)
     
     def _draw_sidebar(self, display, detections, assessments):
         """Draw enhanced sidebar"""
-        sidebar_start = self.main_width
+        sidebar_start = self.display_width
         
-        # Sidebar background
-        cv2.rectangle(display, 
-                     (sidebar_start, 0),
-                     (self.total_width, self.height),
-                     self.colors['darker'], -1)
+        # Sidebar background with subtle gradient
+        for x in range(sidebar_start, self.total_width):
+            alpha = (x - sidebar_start) / self.sidebar_width
+            color = tuple(int(c * (0.8 + 0.2 * alpha)) for c in self.colors['darker'])
+            cv2.line(display, (x, 0), (x, self.total_height), color, 1)
         
         # Sidebar header
+        header_height = 50
+        header_bg = np.zeros((header_height, self.sidebar_width, 3), dtype=np.uint8)
+        header_bg[:, :, :] = self.colors['primary']
+        
+        # Add gradient to header
+        for y in range(header_height):
+            alpha = y / header_height
+            color = tuple(int(c * (0.3 + 0.7 * alpha)) for c in self.colors['primary'])
+            cv2.line(header_bg, (0, y), (self.sidebar_width, y), color, 1)
+        
+        display[0:header_height, sidebar_start:self.total_width] = header_bg
+        
+        # Sidebar header text
         header_text = "JADE ANALYZER"
-        cv2.putText(display, header_text, (sidebar_start + 20, 30),
-                   cv2.FONT_HERSHEY_DUPLEX, 0.8, self.colors['primary'], 2)
+        (text_width, text_height), _ = cv2.getTextSize(header_text, cv2.FONT_HERSHEY_DUPLEX, 0.8, 2)
+        text_x = sidebar_start + (self.sidebar_width - text_width) // 2
+        cv2.putText(display, header_text, (text_x, 35),
+                   cv2.FONT_HERSHEY_DUPLEX, 0.8, (255, 255, 255), 2)
         
         # Status indicators
-        y_offset = 70
+        y_offset = header_height + 20
         status_items = [
-            (f"Voice: {'🔊 ON' if self.voice_enabled else '🔇 OFF'}", 
+            (f"🔊 Voice: {'ON' if self.voice_enabled else 'OFF'}", 
              self.colors['success'] if self.voice_enabled else self.colors['medium']),
-            (f"Analysis: {'🔍 ON' if self.auto_analysis_enabled else '👁️ OFF'}", 
+            (f"🔍 Analysis: {'ON' if self.auto_analysis_enabled else 'OFF'}", 
              self.colors['primary'] if self.auto_analysis_enabled else self.colors['medium']),
-            (f"Mode: {self.assistant.current_mode.upper()}", self.colors['secondary']),
-            (f"FPS: {self.fps:.1f}", 
+            (f"🎯 Mode: {self.assistant.current_mode.upper()}", self.colors['secondary']),
+            (f"⚡ FPS: {self.fps:.1f}", 
              self.colors['success'] if self.fps > 20 else self.colors['warning'] if self.fps > 10 else self.colors['danger'])
         ]
         
@@ -174,112 +282,110 @@ class JADEUniversalAnalyzer:
         
         y_offset += 10
         
-        # Performance stats
-        cv2.putText(display, "PERFORMANCE:", (sidebar_start + 20, y_offset),
-                   cv2.FONT_HERSHEY_SIMPLEX, 0.6, self.colors['light'], 1)
-        y_offset += 25
+        # Performance stats card
+        card_y = y_offset
+        card_height = 90
+        card_width = self.sidebar_width - 20
         
+        # Card background
+        cv2.rectangle(display, 
+                     (sidebar_start + 10, card_y),
+                     (sidebar_start + 10 + card_width, card_y + card_height),
+                     self.colors['card'], -1)
+        cv2.rectangle(display,
+                     (sidebar_start + 10, card_y),
+                     (sidebar_start + 10 + card_width, card_y + card_height),
+                     self.colors['card_highlight'], 2)
+        
+        # Card title
+        cv2.putText(display, "📊 PERFORMANCE", (sidebar_start + 20, card_y + 20),
+                   cv2.FONT_HERSHEY_SIMPLEX, 0.6, self.colors['light'], 1)
+        
+        # Performance stats
         perf_stats = self.detector.get_performance_stats()
         perf_items = [
             (f"Frames: {self.frame_count}", self.colors['light']),
             (f"Objects: {len(detections)}", self.colors['light']),
             (f"Inference: {perf_stats.get('avg_inference_time', 0)*1000:.1f}ms", 
-             self.colors['success'] if perf_stats.get('avg_inference_time', 0)*1000 < 30 else self.colors['warning'])
+             self.colors['success'] if perf_stats.get('avg_inference_time', 0)*1000 < 30 else self.colors['warning']),
+            (f"Confidence: {np.mean([d.get('confidence', 0) for d in detections]):.0%}" if detections else "Confidence: N/A",
+             self.colors['primary'])
         ]
         
-        for text, color in perf_items:
-            cv2.putText(display, text, (sidebar_start + 20, y_offset),
+        for i, (text, color) in enumerate(perf_items):
+            cv2.putText(display, text, (sidebar_start + 20, card_y + 40 + i*15),
                        cv2.FONT_HERSHEY_SIMPLEX, 0.45, color, 1)
-            y_offset += 20
         
-        y_offset += 10
+        y_offset += card_height + 20
         
-        # Detected objects
-        cv2.putText(display, "DETECTED OBJECTS:", (sidebar_start + 20, y_offset),
-                   cv2.FONT_HERSHEY_SIMPLEX, 0.6, self.colors['light'], 1)
-        y_offset += 25
-        
-        if detections:
-            # Show top 5 objects
-            for i, det in enumerate(detections[:5]):
-                if y_offset > self.height - 100:
-                    break
-                
-                obj_name = det.get('class_name', 'object')[:15]
-                confidence = det.get('confidence', 0)
-                
-                # Color based on confidence
-                color = self.colors['success'] if confidence > 0.7 else self.colors['warning'] if confidence > 0.5 else self.colors['danger']
-                
-                cv2.putText(display, f"• {obj_name}", (sidebar_start + 20, y_offset),
-                           cv2.FONT_HERSHEY_SIMPLEX, 0.45, self.colors['light'], 1)
-                
-                # Confidence bar
-                bar_width = 60
-                bar_x = sidebar_start + 120
-                fill_width = int(bar_width * confidence)
-                
-                # Background
-                cv2.rectangle(display, (bar_x, y_offset - 10), (bar_x + bar_width, y_offset - 3),
-                             (50, 50, 50), -1)
-                # Fill
-                cv2.rectangle(display, (bar_x, y_offset - 10), (bar_x + fill_width, y_offset - 3),
-                             color, -1)
-                
-                # Percentage
-                cv2.putText(display, f"{confidence:.0%}", (bar_x + bar_width + 5, y_offset),
-                           cv2.FONT_HERSHEY_SIMPLEX, 0.4, color, 1)
-                
-                y_offset += 20
-        else:
-            cv2_text = "No objects detected"
-            text_size = cv2.getTextSize(cv2_text, cv2.FONT_HERSHEY_SIMPLEX, 0.45, 1)[0]
-            text_x = sidebar_start + (self.sidebar_width - text_size[0]) // 2
-            cv2.putText(display, cv2_text, (text_x, y_offset),
-                       cv2.FONT_HERSHEY_SIMPLEX, 0.45, self.colors['medium'], 1)
-            y_offset += 25
-        
-        y_offset += 10
-        
-        # Analysis results
-        if assessments:
-            cv2.putText(display, "ANALYSIS:", (sidebar_start + 20, y_offset),
-                       cv2.FONT_HERSHEY_SIMPLEX, 0.6, self.colors['light'], 1)
-            y_offset += 25
+        # Detected objects card
+        if y_offset < self.total_height - 200:
+            max_card_height = self.total_height - y_offset - 70
+            card_height = min(200, max_card_height)
             
-            for i, assessment in enumerate(assessments[:3]):
-                if y_offset > self.height - 50:
-                    break
-                
-                obj_name = assessment.get('object', 'object')[:12]
-                value = assessment.get('estimated_value', 'Unknown')
-                condition = assessment.get('condition', 'unknown').capitalize()
-                
-                cv2.putText(display, f"📦 {obj_name}", (sidebar_start + 20, y_offset),
-                           cv2.FONT_HERSHEY_SIMPLEX, 0.45, self.colors['light'], 1)
-                
-                # Condition with color coding
-                condition_color = {
-                    'Excellent': self.colors['success'],
-                    'Good': (100, 255, 100),
-                    'Fair': self.colors['warning'],
-                    'Poor': self.colors['danger']
-                }.get(condition, self.colors['medium'])
-                
-                cv2.putText(display, condition, (sidebar_start + 100, y_offset),
-                           cv2.FONT_HERSHEY_SIMPLEX, 0.4, condition_color, 1)
-                
-                # Value
-                cv2.putText(display, value, (sidebar_start + 180, y_offset),
-                           cv2.FONT_HERSHEY_SIMPLEX, 0.4, self.colors['primary'], 1)
-                
-                y_offset += 20
+            # Card background
+            cv2.rectangle(display,
+                         (sidebar_start + 10, y_offset),
+                         (sidebar_start + 10 + card_width, y_offset + card_height),
+                         self.colors['card'], -1)
+            cv2.rectangle(display,
+                         (sidebar_start + 10, y_offset),
+                         (sidebar_start + 10 + card_width, y_offset + card_height),
+                         self.colors['card_highlight'], 2)
+            
+            # Card title
+            cv2.putText(display, "🎯 DETECTED OBJECTS", (sidebar_start + 20, y_offset + 20),
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.6, self.colors['light'], 1)
+            
+            obj_y = y_offset + 40
+            
+            if detections:
+                # Show detected objects with confidence bars
+                for i, det in enumerate(detections[:6]):  # Show max 6 objects
+                    if obj_y > y_offset + card_height - 20:
+                        break
+                    
+                    obj_name = det.get('class_name', 'object')[:12]
+                    confidence = det.get('confidence', 0)
+                    
+                    # Color based on confidence
+                    color = self.colors['success'] if confidence > 0.7 else self.colors['warning'] if confidence > 0.5 else self.colors['danger']
+                    
+                    # Object name
+                    cv2.putText(display, f"• {obj_name}", (sidebar_start + 20, obj_y),
+                               cv2.FONT_HERSHEY_SIMPLEX, 0.45, self.colors['light'], 1)
+                    
+                    # Confidence bar
+                    bar_width = 60
+                    bar_x = sidebar_start + 100
+                    fill_width = int(bar_width * confidence)
+                    
+                    # Background
+                    cv2.rectangle(display, (bar_x, obj_y - 10), 
+                                 (bar_x + bar_width, obj_y - 3),
+                                 (50, 50, 50), -1)
+                    # Fill
+                    cv2.rectangle(display, (bar_x, obj_y - 10), 
+                                 (bar_x + fill_width, obj_y - 3),
+                                 color, -1)
+                    
+                    # Percentage
+                    cv2.putText(display, f"{confidence:.0%}", 
+                               (bar_x + bar_width + 5, obj_y),
+                               cv2.FONT_HERSHEY_SIMPLEX, 0.4, color, 1)
+                    
+                    obj_y += 20
+            else:
+                cv2_text = "No objects detected"
+                text_size = cv2.getTextSize(cv2_text, cv2.FONT_HERSHEY_SIMPLEX, 0.45, 1)[0]
+                text_x = sidebar_start + (self.sidebar_width - text_size[0]) // 2
+                cv2.putText(display, cv2_text, (text_x, obj_y),
+                           cv2.FONT_HERSHEY_SIMPLEX, 0.45, self.colors['medium'], 1)
         
-        # Quick actions
-        y_offset = self.height - 80
-        cv2.putText(display, "QUICK ACTIONS:", (sidebar_start + 20, y_offset),
+        # Quick actions at bottom
+        actions_y = self.total_height - 60
+        cv2.putText(display, "⚡ QUICK ACTIONS", (sidebar_start + 20, actions_y),
                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, self.colors['light'], 1)
-        y_offset += 25
         
         actions = [
             ("V", "Voice", self.colors['primary']),
@@ -289,73 +395,135 @@ class JADEUniversalAnalyzer:
             ("Q", "Quit", self.colors['danger'])
         ]
         
+        button_size = 40
+        button_spacing = 55
+        
         for i, (key, label, color) in enumerate(actions):
-            x_pos = sidebar_start + 20 + i * 60
-            y_pos = y_offset
+            x_pos = sidebar_start + 20 + i * button_spacing
+            y_pos = actions_y + 20
             
-            # Button background
-            cv2.rectangle(display, (x_pos, y_pos), (x_pos + 40, y_pos + 40), color, -1)
+            # Button background with shadow
+            cv2.rectangle(display, (x_pos + 2, y_pos + 2), 
+                         (x_pos + button_size + 2, y_pos + button_size + 2),
+                         (0, 0, 0), -1)
+            cv2.rectangle(display, (x_pos, y_pos), 
+                         (x_pos + button_size, y_pos + button_size),
+                         color, -1)
+            cv2.rectangle(display, (x_pos, y_pos), 
+                         (x_pos + button_size, y_pos + button_size),
+                         (255, 255, 255), 1)
             
             # Key
-            cv2.putText(display, key, (x_pos + 15, y_pos + 25),
+            (key_width, key_height), _ = cv2.getTextSize(key, cv2.FONT_HERSHEY_SIMPLEX, 0.7, 2)
+            key_x = x_pos + (button_size - key_width) // 2
+            key_y = y_pos + (button_size + key_height) // 2
+            
+            cv2.putText(display, key, (key_x, key_y),
                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
             
             # Label
-            cv2.putText(display, label, (x_pos, y_pos + 55),
+            (label_width, _), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.35, 1)
+            label_x = x_pos + (button_size - label_width) // 2
+            cv2.putText(display, label, (label_x, y_pos + button_size + 15),
                        cv2.FONT_HERSHEY_SIMPLEX, 0.35, self.colors['light'], 1)
     
     def _draw_status_bar(self, display):
         """Draw top status bar"""
         bar_height = 40
         
-        # Draw bar background
-        cv2.rectangle(display, (0, 0), (self.total_width, bar_height), self.colors['darker'], -1)
+        # Draw bar background with gradient
+        for y in range(bar_height):
+            alpha = y / bar_height
+            color = tuple(int(c * (0.2 + 0.8 * alpha)) for c in self.colors['darker'])
+            cv2.line(display, (0, y), (self.total_width, y), color, 1)
         
-        # Logo
-        cv2.putText(display, "JADE AI", (20, 25),
+        # Logo with glow effect
+        logo_text = "JADE AI"
+        for i in range(3, 0, -1):
+            cv2.putText(display, logo_text, (20 + i, 25 + i),
+                       cv2.FONT_HERSHEY_DUPLEX, 0.8, (0, 0, 0), 2)
+        cv2.putText(display, logo_text, (20, 25),
                    cv2.FONT_HERSHEY_DUPLEX, 0.8, self.colors['primary'], 2)
         
         # Session info
-        session_text = f"Session: {self.session_id}"
-        cv2.putText(display, session_text, (self.total_width - 200, 25),
+        session_display = f"Session: {self.session_id[:8]}..."
+        cv2.putText(display, session_display, (self.total_width - 200, 25),
                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, self.colors['medium'], 1)
         
         # Separator line
-        cv2.line(display, (0, bar_height), (self.total_width, bar_height), self.colors['card'], 1)
+        cv2.line(display, (0, bar_height), (self.total_width, bar_height), 
+                self.colors['card_highlight'], 2)
     
     def _draw_fps_counter(self, display):
         """Draw FPS counter"""
         fps_text = f"{self.fps:.1f} FPS"
-        fps_color = self.colors['success'] if self.fps > 20 else self.colors['warning'] if self.fps > 10 else self.colors['danger']
         
-        # Draw background
+        # Determine color based on FPS
+        if self.fps > 25:
+            fps_color = self.colors['success']
+        elif self.fps > 15:
+            fps_color = self.colors['warning']
+        else:
+            fps_color = self.colors['danger']
+        
+        # Draw background with rounded corners effect
         text_size = cv2.getTextSize(fps_text, cv2.FONT_HERSHEY_SIMPLEX, 0.6, 2)[0]
-        bg_x = self.main_width - text_size[0] - 20
+        bg_x = self.display_width - text_size[0] - 30
         bg_y = 10
+        bg_width = text_size[0] + 20
+        bg_height = text_size[1] + 10
         
-        cv2.rectangle(display, (bg_x - 10, bg_y - 10), 
-                     (bg_x + text_size[0] + 10, bg_y + text_size[1] + 10),
+        # Background with shadow
+        cv2.rectangle(display, (bg_x + 2, bg_y + 2), 
+                     (bg_x + bg_width + 2, bg_y + bg_height + 2),
+                     (0, 0, 0), -1)
+        
+        # Main background
+        cv2.rectangle(display, (bg_x, bg_y), 
+                     (bg_x + bg_width, bg_y + bg_height),
                      self.colors['darker'], -1)
+        cv2.rectangle(display, (bg_x, bg_y), 
+                     (bg_x + bg_width, bg_y + bg_height),
+                     fps_color, 2)
         
-        # Draw FPS text
-        cv2.putText(display, fps_text, (bg_x, bg_y + text_size[1]),
-                   cv2.FONT_HERSHEY_SIMPLEX, 0.6, fps_color, 2)
+        # FPS text
+        cv2.putText(display, fps_text, (bg_x + 10, bg_y + text_size[1] + 2),
+                   cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
     
     def _process_frame_optimized(self, frame):
-        """Optimized frame processing with smart detection"""
+        """Optimized frame processing maintaining quality"""
+        if frame is None or frame.size == 0:
+            return None, [], []
+        
         # Apply frame skipping for better performance
+        current_time = time.time()
         if self.frame_count % config.FRAME_SKIP != 0:
             # Return cached results if available
-            if time.time() - self.detection_cache_time < 0.5:
+            if current_time - self.detection_cache_time < 0.5:
                 return frame, self.last_detections, self.last_assessments
         
         # Store original frame for display
         display_frame = frame.copy()
         
-        # Create processing frame (resized for speed)
-        processing_height = 480
+        # Calculate FPS
+        frame_time = current_time - self.last_frame_time
+        self.last_frame_time = current_time
+        
+        if frame_time > 0:
+            self.fps = 1.0 / frame_time
+            self.fps_history.append(self.fps)
+            
+            # Keep FPS history manageable
+            if len(self.fps_history) > 100:
+                self.fps_history.pop(0)
+        
+        # Create processing frame (maintain reasonable size for speed)
+        processing_height = 640  # Fixed size for consistent processing
         processing_width = int(frame.shape[1] * (processing_height / frame.shape[0]))
-        processing_frame = cv2.resize(frame, (processing_width, processing_height))
+        
+        # Use high-quality interpolation for resizing
+        processing_frame = cv2.resize(frame, (processing_width, processing_height), 
+                                     interpolation=cv2.INTER_LANCZOS4)
         
         # Run detection
         start_detect = time.time()
@@ -387,19 +555,15 @@ class JADEUniversalAnalyzer:
             }
             scaled_detections.append(scaled_det)
             
-            # Draw on display frame with enhanced visualization
+            # Draw on display frame with clear visualization
             color = self.detector.class_colors[det.class_id % len(self.detector.class_colors)]
             x1, y1, x2, y2 = scaled_bbox
             
-            # Draw glowing box effect
-            for i in range(3):
-                thickness = 2 - i
-                alpha = 0.5 - i * 0.15
-                temp_frame = display_frame.copy()
-                cv2.rectangle(temp_frame, (x1-i, y1-i), (x2+i, y2+i), color, thickness)
-                cv2.addWeighted(temp_frame, alpha, display_frame, 1-alpha, 0, display_frame)
+            # Draw bounding box with shadow for better visibility
+            cv2.rectangle(display_frame, (x1, y1), (x2, y2), (0, 0, 0), 3)
+            cv2.rectangle(display_frame, (x1, y1), (x2, y2), color, 2)
             
-            # Draw label with modern style
+            # Draw label with clear background
             label = f"{det.class_name} {det.confidence:.0%}"
             if det.track_id:
                 label = f"ID:{det.track_id} {label}"
@@ -409,62 +573,49 @@ class JADEUniversalAnalyzer:
             )
             
             # Label background
-            label_bg = np.array([self.colors['card']]) * 0.7
             cv2.rectangle(display_frame, 
                          (x1, y1 - text_height - 10),
                          (x1 + text_width + 10, y1),
-                         label_bg.tolist()[0], -1)
+                         (0, 0, 0), -1)
+            cv2.rectangle(display_frame,
+                         (x1, y1 - text_height - 10),
+                         (x1 + text_width + 10, y1),
+                         color, 1)
             
             # Label text
             cv2.putText(display_frame, label,
                        (x1 + 5, y1 - 5),
                        cv2.FONT_HERSHEY_SIMPLEX, 0.5,
-                       self.colors['light'], 2)
+                       (255, 255, 255), 2)
             
-            # Confidence bar
-            bar_width = 60
-            bar_height = 4
-            bar_x = x1
-            bar_y = y2 + 5
-            
-            # Background
-            cv2.rectangle(display_frame,
-                         (bar_x, bar_y),
-                         (bar_x + bar_width, bar_y + bar_height),
-                         (50, 50, 50), -1)
-            
-            # Fill
-            fill_width = int(bar_width * det.confidence)
-            bar_color = self.colors['success'] if det.confidence > 0.7 else self.colors['warning'] if det.confidence > 0.5 else self.colors['danger']
-            cv2.rectangle(display_frame,
-                         (bar_x, bar_y),
-                         (bar_x + fill_width, bar_y + bar_height),
-                         bar_color, -1)
+            # Draw tracking centroid
+            if det.track_id:
+                cx = (x1 + x2) // 2
+                cy = (y1 + y2) // 2
+                cv2.circle(display_frame, (cx, cy), 5, (0, 255, 255), -1)
+                cv2.circle(display_frame, (cx, cy), 7, (0, 0, 0), 1)
         
         # Update performance tracking
-        current_time = time.time()
-        if current_time - self.last_fps_update > 0.5:  # Update FPS every 0.5 seconds
-            if detect_time > 0:
-                self.fps = 1.0 / detect_time
-                self.fps_history.append(self.fps)
-            self.last_fps_update = current_time
-        
         self.object_count_history.append(len(scaled_detections))
         if scaled_detections:
             avg_confidence = np.mean([d['confidence'] for d in scaled_detections])
             self.confidence_history.append(avg_confidence)
+            
+            # Keep history manageable
+            if len(self.object_count_history) > 100:
+                self.object_count_history.pop(0)
+            if len(self.confidence_history) > 100:
+                self.confidence_history.pop(0)
         
         # Smart analysis - only analyze when needed
         object_assessments = []
-        current_time = time.time()
         
-        # Analyze objects if enough time passed since last analysis and auto analysis is enabled
         if (scaled_detections and self.auto_analysis_enabled and 
             (current_time - self.last_analysis_time > self.analysis_interval)):
             
             self.last_analysis_time = current_time
             
-            # Analyze up to 3 main objects (highest confidence or largest)
+            # Analyze up to 3 main objects
             detections_to_analyze = sorted(
                 scaled_detections, 
                 key=lambda x: x['confidence'] * x['area'], 
@@ -540,12 +691,13 @@ class JADEUniversalAnalyzer:
         return display_frame, scaled_detections, object_assessments
     
     def run(self):
-        """Enhanced main application loop with performance graphs"""
+        """Main application loop with optimized display"""
         print("\n" + "="*60)
         print("🎯 JADE Enhanced is running!")
         print("👩 Voice: Always Active (Like JARVIS)")
         print("📊 Performance Graphs: ENABLED")
         print("🎨 Enhanced GUI: ACTIVE")
+        print(f"📺 Display: {self.total_width}x{self.total_height}")
         print("\n📢 You can speak naturally - I'm always listening")
         print("🎤 Just say 'Hey Jade' to get my attention")
         print("\n⌨️  Enhanced Keyboard Shortcuts:")
@@ -559,27 +711,55 @@ class JADEUniversalAnalyzer:
         print("   Q: Quit")
         print("="*60)
         
-        last_frame_time = time.time()
-        
         # Initial greeting
         if self.voice_enabled:
             self.voice_assistant.speak("JADE Enhanced activated. I'm always listening. Point the camera at objects for analysis.")
         
+        # Create window with proper properties
+        cv2.namedWindow('JADE Enhanced - Object Analyzer', cv2.WINDOW_NORMAL)
+        cv2.resizeWindow('JADE Enhanced - Object Analyzer', self.total_width, self.total_height)
+        
         while True:
             try:
                 # Read frame
-                ret, frame = self.cap.read()
-                if not ret:
-                    print("❌ Camera error - trying to reconnect...")
-                    time.sleep(1)
-                    self.cap.release()
-                    self.cap = self._initialize_camera_optimized()
-                    if not self.cap:
+                ret = False
+                frame = None
+                
+                if self.cap is not None:
+                    ret, frame = self.cap.read()
+                
+                if not ret or frame is None or frame.size == 0:
+                    print("❌ Camera error or empty frame")
+                    
+                    # Create debug display
+                    debug_height = 480
+                    debug_width = 640
+                    debug_frame = np.zeros((debug_height, debug_width, 3), dtype=np.uint8)
+                    debug_frame[:, :, :] = (30, 30, 40)
+                    
+                    # Add debug message
+                    cv2.putText(debug_frame, "CAMERA FEED UNAVAILABLE", (120, 200),
+                               cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
+                    cv2.putText(debug_frame, "Press 'H' for troubleshooting", (140, 250),
+                               cv2.FONT_HERSHEY_SIMPLEX, 0.6, (200, 200, 200), 1)
+                    
+                    # Show debug display
+                    cv2.imshow('JADE Enhanced - Camera Debug', debug_frame)
+                    
+                    key = cv2.waitKey(1) & 0xFF
+                    if key == ord('q'):
                         break
+                    elif key == ord('h'):
+                        self._show_camera_help()
+                    
+                    time.sleep(0.1)
                     continue
                 
                 # Process frame
                 processed_frame, detections, assessments = self._process_frame_optimized(frame)
+                
+                if processed_frame is None:
+                    continue
                 
                 # Create enhanced display
                 display_frame = self._draw_enhanced_gui(processed_frame, detections, assessments)
@@ -627,18 +807,71 @@ class JADEUniversalAnalyzer:
                 traceback.print_exc()
                 time.sleep(0.1)
     
+    def _show_camera_help(self):
+        """Show camera troubleshooting help"""
+        help_text = """
+        CAMERA TROUBLESHOOTING:
+        
+        1. Check if camera is connected
+        2. Try different camera IDs:
+           - Change CAMERA_ID in config.py
+           - Common IDs: 0, 1, 2
+        
+        3. Test camera with OpenCV:
+           python -c "import cv2; cap = cv2.VideoCapture(0); print('Camera found' if cap.isOpened() else 'No camera')"
+        
+        4. On Linux, check video devices:
+           ls -la /dev/video*
+        
+        5. On Windows, check Device Manager
+        
+        Press 'Q' to quit, or try different camera ID.
+        """
+        
+        print(help_text)
+        
+        # Create help window
+        help_frame = np.zeros((400, 600, 3), dtype=np.uint8)
+        help_frame[:, :, :] = (30, 30, 40)
+        
+        y_pos = 30
+        for line in help_text.strip().split('\n'):
+            cv2.putText(help_frame, line.strip(), (20, y_pos),
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.4, (220, 220, 220), 1)
+            y_pos += 20
+        
+        cv2.imshow('Camera Help', help_frame)
+        cv2.waitKey(3000)
+        cv2.destroyWindow('Camera Help')
+    
     def _toggle_voice_mute(self):
         """Toggle voice assistant mute"""
         if self.voice_enabled:
             self.voice_assistant.stop_listening()
             self.voice_enabled = False
             print("🔇 Voice muted")
-            cv2.displayOverlay('JADE Enhanced - Object Analyzer', "Voice: MUTED", 1000)
+            
+            # Show notification
+            notif = np.zeros((80, 250, 3), dtype=np.uint8)
+            notif[:, :, :] = (50, 50, 50)
+            cv2.putText(notif, "Voice: MUTED", (60, 45),
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 100, 100), 2)
+            cv2.imshow('Notification', notif)
+            cv2.waitKey(1000)
+            cv2.destroyWindow('Notification')
         else:
             self.voice_assistant.start_continuous_listening()
             self.voice_enabled = True
             print("🔊 Voice activated")
-            cv2.displayOverlay('JADE Enhanced - Object Analyzer', "Voice: ACTIVE", 1000)
+            
+            # Show notification
+            notif = np.zeros((80, 250, 3), dtype=np.uint8)
+            notif[:, :, :] = (50, 50, 50)
+            cv2.putText(notif, "Voice: ACTIVE", (60, 45),
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.8, (100, 255, 100), 2)
+            cv2.imshow('Notification', notif)
+            cv2.waitKey(1000)
+            cv2.destroyWindow('Notification')
     
     def _toggle_analysis_mute(self):
         """Toggle automatic analysis"""
@@ -646,8 +879,15 @@ class JADEUniversalAnalyzer:
         status = "ON" if self.auto_analysis_enabled else "OFF"
         print(f"🔍 Automatic analysis: {status}")
         
-        overlay_text = f"Auto-Analysis: {status}"
-        cv2.displayOverlay('JADE Enhanced - Object Analyzer', overlay_text, 1000)
+        # Show notification
+        notif = np.zeros((80, 300, 3), dtype=np.uint8)
+        notif[:, :, :] = (50, 50, 50)
+        color = (100, 255, 100) if self.auto_analysis_enabled else (255, 100, 100)
+        cv2.putText(notif, f"Auto-Analysis: {status}", (60, 45),
+                   cv2.FONT_HERSHEY_SIMPLEX, 0.8, color, 2)
+        cv2.imshow('Notification', notif)
+        cv2.waitKey(1000)
+        cv2.destroyWindow('Notification')
         
         if self.voice_enabled:
             self.voice_assistant.speak(f"Automatic analysis {status}")
@@ -659,7 +899,17 @@ class JADEUniversalAnalyzer:
             return
         
         print("🎤 Manual listening activated...")
+        
+        # Show listening indicator
+        listen_frame = np.zeros((100, 350, 3), dtype=np.uint8)
+        listen_frame[:, :, :] = (30, 100, 200)
+        cv2.putText(listen_frame, "🎤 LISTENING...", (80, 55),
+                   cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255, 255, 255), 2)
+        cv2.imshow('Listening', listen_frame)
+        cv2.waitKey(100)
+        
         text = self.voice_assistant.listen_once()
+        cv2.destroyWindow('Listening')
         
         if text:
             # Process the command
@@ -673,55 +923,84 @@ class JADEUniversalAnalyzer:
         """Generate and show performance graphs"""
         print("📊 Generating performance graphs...")
         
-        # Generate reports from all components
+        # Show generating indicator
+        gen_frame = np.zeros((120, 450, 3), dtype=np.uint8)
+        gen_frame[:, :, :] = (30, 100, 150)
+        cv2.putText(gen_frame, "📈 Generating Graphs...", (80, 65),
+                   cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255, 255, 255), 2)
+        cv2.imshow('Generating', gen_frame)
+        cv2.waitKey(100)
+        
+        # Generate reports
         total_time = time.time() - self.start_time
         
-        # 1. Assistant performance report
-        assistant_report = self.assistant.generate_performance_report(
-            self.session_id, self.frame_count, total_time
-        )
-        
-        # 2. Detector performance report
-        detector_report = self.detector.create_performance_report(self.session_id)
-        
-        # 3. Logger visualization
-        logger_report = self.logger.create_visualization_report(self.session_id)
-        
-        # 4. Knowledge base performance (if available)
         try:
-            kb_report = knowledge_base.create_performance_report(self.session_id)
-        except:
-            kb_report = None
-        
-        print("\n✅ Performance graphs generated:")
-        print(f"   • Assistant: {assistant_report}")
-        print(f"   • Detector: {detector_report}")
-        print(f"   • Logger: {logger_report}")
-        if kb_report:
-            print(f"   • Knowledge Base: {kb_report}")
-        
-        if self.voice_enabled:
-            self.voice_assistant.speak("Performance graphs generated and saved to reports folder.")
+            # 1. Assistant performance report
+            assistant_report = self.assistant.generate_performance_report(
+                self.session_id, self.frame_count, total_time
+            )
+            
+            # 2. Detector performance report
+            detector_report = self.detector.create_performance_report(self.session_id)
+            
+            # 3. Logger visualization
+            logger_report = self.logger.create_visualization_report(self.session_id)
+            
+            cv2.destroyWindow('Generating')
+            
+            # Show completion message
+            complete_frame = np.zeros((120, 450, 3), dtype=np.uint8)
+            complete_frame[:, :, :] = (50, 150, 50)
+            cv2.putText(complete_frame, "✅ Graphs Generated!", (100, 65),
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255, 255, 255), 2)
+            cv2.imshow('Complete', complete_frame)
+            cv2.waitKey(1000)
+            cv2.destroyWindow('Complete')
+            
+            print("\n✅ Performance graphs generated:")
+            print(f"   • Assistant: {assistant_report}")
+            print(f"   • Detector: {detector_report}")
+            print(f"   • Logger: {logger_report}")
+            
+            if self.voice_enabled:
+                self.voice_assistant.speak("Performance graphs generated and saved to reports folder.")
+                
+        except Exception as e:
+            print(f"❌ Error generating graphs: {e}")
+            cv2.destroyWindow('Generating')
     
     def _show_live_performance(self):
         """Show live performance overlay"""
         print("📈 Showing live performance stats...")
         
-        # Create simple performance overlay
-        overlay_text = f"""
-        Live Performance Stats:
+        # Create performance overlay
+        perf_frame = np.zeros((350, 500, 3), dtype=np.uint8)
+        perf_frame[:, :, :] = (20, 20, 30)
         
-        Frames Processed: {self.frame_count}
-        Current FPS: {self.fps:.1f}
-        Objects Detected: {len(self.last_detections)}
-        Analysis Mode: {self.assistant.current_mode}
+        # Title
+        cv2.putText(perf_frame, "📊 LIVE PERFORMANCE", (120, 40),
+                   cv2.FONT_HERSHEY_SIMPLEX, 0.9, self.colors['primary'], 2)
         
-        Session Duration: {time.time() - self.start_time:.1f}s
-        Voice: {'ACTIVE' if self.voice_enabled else 'MUTED'}
-        Auto-Analysis: {'ON' if self.auto_analysis_enabled else 'OFF'}
-        """
+        # Stats with icons
+        stats = [
+            f"📷 Frames Processed: {self.frame_count}",
+            f"⚡ Current FPS: {self.fps:.1f}",
+            f"🎯 Objects Detected: {len(self.last_detections)}",
+            f"🔍 Analysis Mode: {self.assistant.current_mode}",
+            f"⏱️  Session Duration: {time.time() - self.start_time:.1f}s",
+            f"🔊 Voice: {'ACTIVE' if self.voice_enabled else 'MUTED'}",
+            f"🤖 Auto-Analysis: {'ON' if self.auto_analysis_enabled else 'OFF'}"
+        ]
         
-        print(overlay_text)
+        y_pos = 80
+        for stat in stats:
+            cv2.putText(perf_frame, stat, (30, y_pos),
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.6, (220, 220, 220), 1)
+            y_pos += 40
+        
+        cv2.imshow('Live Performance', perf_frame)
+        cv2.waitKey(3000)
+        cv2.destroyWindow('Live Performance')
         
         if self.voice_enabled:
             self.voice_assistant.speak(f"Live performance: {self.fps:.0f} FPS, {len(self.last_detections)} objects detected.")
@@ -774,6 +1053,20 @@ class JADEUniversalAnalyzer:
         
         print(help_text)
         
+        # Display help in a window
+        help_frame = np.zeros((550, 750, 3), dtype=np.uint8)
+        help_frame[:, :, :] = (20, 20, 30)
+        
+        y_pos = 40
+        for line in help_text.strip().split('\n'):
+            cv2.putText(help_frame, line.strip(), (20, y_pos),
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.45, (220, 220, 220), 1)
+            y_pos += 25
+        
+        cv2.imshow('JADE Help Guide', help_frame)
+        cv2.waitKey(5000)
+        cv2.destroyWindow('JADE Help Guide')
+        
         if self.voice_enabled:
             self.voice_assistant.speak("Enhanced help information displayed. You can ask me anything or generate performance graphs!")
     
@@ -785,8 +1078,19 @@ class JADEUniversalAnalyzer:
         os.makedirs('exports/screenshots', exist_ok=True)
         
         filename = f"exports/screenshots/jade_enhanced_{timestamp}.jpg"
-        cv2.imwrite(filename, frame)
+        
+        # Save with high quality
+        cv2.imwrite(filename, frame, [cv2.IMWRITE_JPEG_QUALITY, 95])
         print(f"✅ Screenshot saved: {filename}")
+        
+        # Show confirmation
+        confirm_frame = np.zeros((100, 350, 3), dtype=np.uint8)
+        confirm_frame[:, :, :] = (50, 150, 50)
+        cv2.putText(confirm_frame, "📸 Screenshot Saved!", (60, 55),
+                   cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255, 255, 255), 2)
+        cv2.imshow('Confirmation', confirm_frame)
+        cv2.waitKey(1000)
+        cv2.destroyWindow('Confirmation')
         
         if self.voice_enabled:
             self.voice_assistant.speak("Screenshot saved successfully.")
@@ -796,7 +1100,7 @@ class JADEUniversalAnalyzer:
         print("\n🛑 Shutting down JADE Enhanced...")
         
         # Stop components
-        if hasattr(self, 'cap'):
+        if hasattr(self, 'cap') and self.cap is not None:
             self.cap.release()
         
         if hasattr(self, 'voice_assistant'):
@@ -825,7 +1129,7 @@ class JADEUniversalAnalyzer:
                 'performance_stats': self.detector.get_performance_stats(),
                 'objects_detected': len(set([d['class_name'] for d in self.last_detections])) if self.last_detections else 0,
                 'total_detections': sum([len(self.last_detections)]),
-                'fps_history': list(self.fps_history)[-50:],  # Last 50 FPS values
+                'fps_history': list(self.fps_history)[-50:],
                 'object_count_history': list(self.object_count_history)[-50:],
                 'confidence_history': list(self.confidence_history)[-50:]
             }

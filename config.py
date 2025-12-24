@@ -9,7 +9,7 @@ class Config:
     DEEPSEEK_API_KEY = os.getenv('DEEPSEEK_API_KEY', '')  # New: DeepSeek API
     
     # Camera Settings
-    CAMERA_ID = 2 #int(os.getenv('CAMERA_ID', '0'))
+    CAMERA_ID = int(os.getenv('CAMERA_ID', '0'))
     PREVIEW_WIDTH = 1280
     PREVIEW_HEIGHT = 720
     TARGET_FPS = 60 #30

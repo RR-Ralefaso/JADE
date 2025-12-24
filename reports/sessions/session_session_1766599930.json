@@ -1,0 +1,20 @@
+{
+  "session_id": "session_1766599930",
+  "start_time": "2025-12-24T20:12:12.046279",
+  "end_time": "2025-12-24T20:12:24.441522",
+  "duration_seconds": 12.395224332809448,
+  "total_frames": 138,
+  "average_fps": 11.1333200831809,
+  "voice_active": true,
+  "analysis_mode": "conversational",
+  "auto_analysis": true,
+  "performance_stats": {
+    "avg_inference_time": 0.07087684004274133,
+    "min_inference_time": 0.05733346939086914,
+    "max_inference_time": 0.1808757781982422,
+    "avg_fps": 14.537950786107425,
+    "device": "cpu",
+    "precision": "torch.float32",
+    "total_frames_processed": 73,
+    "total_detections": 27,
+    "avg_confidence": 

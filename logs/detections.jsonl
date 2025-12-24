@@ -8795,3 +8795,157 @@
 2025-12-24 20:10:58,609 - outtxt - INFO - Detected: person (0.76)
 2025-12-24 20:10:59,609 - outtxt - ERROR - Writer error: 
 2025-12-24 20:11:00,610 - outtxt - ERROR - Writer error: 
+2025-12-24 20:12:11,978 - outtxt - ERROR - Writer error: 
+2025-12-24 20:12:12,978 - outtxt - ERROR - Writer error: 
+2025-12-24 20:12:13,782 - outtxt - INFO - Detected: fire hydrant (0.83)
+2025-12-24 20:12:13,947 - outtxt - INFO - Detected: fire hydrant (0.87)
+2025-12-24 20:12:14,583 - outtxt - INFO - Detected: fire hydrant (0.75)
+2025-12-24 20:12:14,771 - outtxt - INFO - Detected: fire hydrant (0.63)
+2025-12-24 20:12:14,869 - outtxt - INFO - Detected: toilet (0.65)
+2025-12-24 20:12:15,059 - outtxt - INFO - Detected: fire hydrant (0.59)
+2025-12-24 20:12:15,242 - outtxt - INFO - Detected: person (0.54)
+2025-12-24 20:12:15,349 - outtxt - INFO - Detected: person (0.74)
+2025-12-24 20:12:15,541 - outtxt - INFO - Detected: person (0.79)
+2025-12-24 20:12:15,725 - outtxt - INFO - Detected: person (0.64)
+2025-12-24 20:12:15,909 - outtxt - INFO - Detected: umbrella (0.60)
+2025-12-24 20:12:16,854 - outtxt - INFO - Detected: person (0.78)
+2025-12-24 20:12:16,944 - outtxt - INFO - Detected: person (0.78)
+2025-12-24 20:12:17,265 - outtxt - INFO - Detected: person (0.66)
+2025-12-24 20:12:17,986 - outtxt - INFO - Detected: person (0.70)
+2025-12-24 20:12:18,326 - outtxt - INFO - Detected: person (0.74)
+2025-12-24 20:12:18,654 - outtxt - INFO - Detected: person (0.83)
+2025-12-24 20:12:19,655 - outtxt - ERROR - Writer error: 
+2025-12-24 20:12:20,357 - outtxt - INFO - Detected: person (0.53)
+2025-12-24 20:12:20,603 - outtxt - INFO - Detected: person (0.87)
+2025-12-24 20:12:20,704 - outtxt - INFO - Detected: person (0.78)
+2025-12-24 20:12:20,805 - outtxt - INFO - Detected: person (0.62)
+2025-12-24 20:12:21,199 - outtxt - INFO - Detected: fire hydrant (0.72)
+2025-12-24 20:12:21,423 - outtxt - INFO - Detected: person (0.73)
+2025-12-24 20:12:21,744 - outtxt - INFO - Detected: person (0.81)
+2025-12-24 20:12:22,076 - outtxt - INFO - Detected: person (0.56)
+2025-12-24 20:12:22,436 - outtxt - INFO - Detected: fire hydrant (0.80)
+2025-12-24 20:12:23,437 - outtxt - ERROR - Writer error: 
+2025-12-24 20:12:23,612 - outtxt - INFO - Detected: fire hydrant (0.70)
+2025-12-24 20:18:43,370 - outtxt - ERROR - Writer error: 
+2025-12-24 20:18:44,370 - outtxt - ERROR - Writer error: 
+2025-12-24 20:18:45,370 - outtxt - ERROR - Writer error: 
+2025-12-24 20:18:46,370 - outtxt - ERROR - Writer error: 
+2025-12-24 20:18:47,371 - outtxt - ERROR - Writer error: 
+2025-12-24 20:18:48,371 - outtxt - ERROR - Writer error: 
+2025-12-24 20:18:49,371 - outtxt - ERROR - Writer error: 
+2025-12-24 20:18:50,372 - outtxt - ERROR - Writer error: 
+2025-12-24 20:18:51,373 - outtxt - ERROR - Writer error: 
+2025-12-24 20:27:40,189 - outtxt - ERROR - Writer error: 
+2025-12-24 20:27:41,190 - outtxt - ERROR - Writer error: 
+2025-12-24 20:27:42,190 - outtxt - ERROR - Writer error: 
+2025-12-24 20:27:43,190 - outtxt - ERROR - Writer error: 
+2025-12-24 20:27:44,190 - outtxt - ERROR - Writer error: 
+2025-12-24 20:27:45,191 - outtxt - ERROR - Writer error: 
+2025-12-24 20:27:46,191 - outtxt - ERROR - Writer error: 
+2025-12-24 20:27:47,191 - outtxt - ERROR - Writer error: 
+2025-12-24 20:27:48,192 - outtxt - ERROR - Writer error: 
+2025-12-24 20:27:49,192 - outtxt - ERROR - Writer error: 
+2025-12-24 20:27:49,434 - outtxt - INFO - Detected: fire hydrant (0.69)
+2025-12-24 20:27:50,435 - outtxt - ERROR - Writer error: 
+2025-12-24 20:27:51,435 - outtxt - ERROR - Writer error: 
+2025-12-24 20:27:52,435 - outtxt - ERROR - Writer error: 
+2025-12-24 20:27:53,436 - outtxt - ERROR - Writer error: 
+2025-12-24 20:27:54,436 - outtxt - ERROR - Writer error: 
+2025-12-24 20:27:55,436 - outtxt - ERROR - Writer error: 
+2025-12-24 20:27:56,437 - outtxt - ERROR - Writer error: 
+2025-12-24 20:27:57,437 - outtxt - ERROR - Writer error: 
+2025-12-24 20:27:58,437 - outtxt - ERROR - Writer error: 
+2025-12-24 20:27:59,437 - outtxt - ERROR - Writer error: 
+2025-12-24 20:28:00,438 - outtxt - ERROR - Writer error: 
+2025-12-24 20:28:01,438 - outtxt - ERROR - Writer error: 
+2025-12-24 20:28:02,438 - outtxt - ERROR - Writer error: 
+2025-12-24 20:28:02,902 - outtxt - INFO - Detected: person (0.54)
+2025-12-24 20:28:03,903 - outtxt - ERROR - Writer error: 
+2025-12-24 20:28:04,903 - outtxt - ERROR - Writer error: 
+2025-12-24 20:28:04,930 - outtxt - INFO - Detected: person (0.69)
+2025-12-24 20:28:05,930 - outtxt - ERROR - Writer error: 
+2025-12-24 20:28:06,930 - outtxt - ERROR - Writer error: 
+2025-12-24 20:28:07,931 - outtxt - ERROR - Writer error: 
+2025-12-24 20:28:08,931 - outtxt - ERROR - Writer error: 
+2025-12-24 20:28:09,932 - outtxt - ERROR - Writer error: 
+2025-12-24 20:28:28,367 - outtxt - ERROR - Writer error: 
+2025-12-24 20:28:29,367 - outtxt - ERROR - Writer error: 
+2025-12-24 20:28:30,367 - outtxt - ERROR - Writer error: 
+2025-12-24 20:28:31,368 - outtxt - ERROR - Writer error: 
+2025-12-24 20:28:32,368 - outtxt - ERROR - Writer error: 
+2025-12-24 20:28:33,368 - outtxt - ERROR - Writer error: 
+2025-12-24 20:28:34,368 - outtxt - ERROR - Writer error: 
+2025-12-24 20:28:35,085 - outtxt - INFO - Detected: person (0.51)
+2025-12-24 20:28:36,086 - outtxt - ERROR - Writer error: 
+2025-12-24 20:28:37,087 - outtxt - ERROR - Writer error: 
+2025-12-24 20:28:38,075 - outtxt - INFO - Detected: person (0.51)
+2025-12-24 20:28:39,076 - outtxt - ERROR - Writer error: 
+2025-12-24 20:28:40,076 - outtxt - ERROR - Writer error: 
+2025-12-24 20:28:41,076 - outtxt - ERROR - Writer error: 
+2025-12-24 20:28:42,077 - outtxt - ERROR - Writer error: 
+2025-12-24 20:28:43,077 - outtxt - ERROR - Writer error: 
+2025-12-24 20:28:44,077 - outtxt - ERROR - Writer error: 
+2025-12-24 20:28:45,078 - outtxt - ERROR - Writer error: 
+2025-12-24 20:28:45,619 - outtxt - INFO - Detected: fire hydrant (0.81)
+2025-12-24 20:28:45,619 - outtxt - INFO - Detected: fire hydrant (0.61)
+2025-12-24 20:28:46,398 - outtxt - INFO - Detected: fire hydrant (0.80)
+2025-12-24 20:28:47,398 - outtxt - ERROR - Writer error: 
+2025-12-24 20:28:48,007 - outtxt - INFO - Detected: fire hydrant (0.52)
+2025-12-24 20:28:49,008 - outtxt - ERROR - Writer error: 
+2025-12-24 20:28:50,008 - outtxt - ERROR - Writer error: 
+2025-12-24 20:28:51,009 - outtxt - ERROR - Writer error: 
+2025-12-24 20:28:52,009 - outtxt - ERROR - Writer error: 
+2025-12-24 20:28:53,010 - outtxt - ERROR - Writer error: 
+2025-12-24 20:28:53,639 - outtxt - INFO - Detected: person (0.66)
+2025-12-24 20:28:54,640 - outtxt - ERROR - Writer error: 
+2025-12-24 20:28:55,640 - outtxt - ERROR - Writer error: 
+2025-12-24 20:28:56,641 - outtxt - ERROR - Writer error: 
+2025-12-24 20:28:57,531 - outtxt - INFO - Detected: person (0.60)
+2025-12-24 20:28:58,284 - outtxt - INFO - Detected: fire hydrant (0.55)
+2025-12-24 20:28:59,285 - outtxt - ERROR - Writer error: 
+2025-12-24 20:29:00,285 - outtxt - ERROR - Writer error: 
+2025-12-24 20:29:01,285 - outtxt - ERROR - Writer error: 
+2025-12-24 20:29:02,286 - outtxt - ERROR - Writer error: 
+2025-12-24 20:29:02,407 - outtxt - INFO - Detected: person (0.68)
+2025-12-24 20:29:02,407 - outtxt - INFO - Detected: fire hydrant (0.61)
+2025-12-24 20:29:03,407 - outtxt - ERROR - Writer error: 
+2025-12-24 20:29:04,407 - outtxt - ERROR - Writer error: 
+2025-12-24 20:29:05,408 - outtxt - ERROR - Writer error: 
+2025-12-24 20:29:06,408 - outtxt - ERROR - Writer error: 
+2025-12-24 20:29:07,408 - outtxt - ERROR - Writer error: 
+2025-12-24 20:29:08,409 - outtxt - ERROR - Writer error: 
+2025-12-24 20:29:09,153 - outtxt - INFO - Detected: person (0.79)
+2025-12-24 20:29:10,155 - outtxt - ERROR - Writer error: 
+2025-12-24 20:29:11,156 - outtxt - ERROR - Writer error: 
+2025-12-24 20:29:12,157 - outtxt - ERROR - Writer error: 
+2025-12-24 20:29:13,158 - outtxt - ERROR - Writer error: 
+2025-12-24 20:29:14,158 - outtxt - ERROR - Writer error: 
+2025-12-24 20:29:14,736 - outtxt - INFO - Detected: person (0.51)
+2025-12-24 20:29:15,737 - outtxt - ERROR - Writer error: 
+2025-12-24 20:29:16,737 - outtxt - ERROR - Writer error: 
+2025-12-24 20:29:17,738 - outtxt - ERROR - Writer error: 
+2025-12-24 20:29:18,738 - outtxt - ERROR - Writer error: 
+2025-12-24 20:29:19,006 - outtxt - INFO - Detected: person (0.74)
+2025-12-24 20:29:20,006 - outtxt - ERROR - Writer error: 
+2025-12-24 20:29:20,460 - outtxt - INFO - Detected: person (0.77)
+2025-12-24 20:29:21,461 - outtxt - ERROR - Writer error: 
+2025-12-24 20:29:22,376 - outtxt - INFO - Detected: person (0.82)
+2025-12-24 20:29:23,080 - outtxt - INFO - Detected: person (0.65)
+2025-12-24 20:29:23,790 - outtxt - INFO - Detected: person (0.78)
+2025-12-24 20:29:24,791 - outtxt - ERROR - Writer error: 
+2025-12-24 20:29:25,791 - outtxt - ERROR - Writer error: 
+2025-12-24 20:29:26,203 - outtxt - INFO - Detected: person (0.86)
+2025-12-24 20:29:27,204 - outtxt - ERROR - Writer error: 
+2025-12-24 20:29:28,205 - outtxt - ERROR - Writer error: 
+2025-12-24 20:29:29,205 - outtxt - ERROR - Writer error: 
+2025-12-24 20:29:29,900 - outtxt - INFO - Detected: person (0.62)
+2025-12-24 20:29:30,901 - outtxt - ERROR - Writer error: 
+2025-12-24 20:29:31,901 - outtxt - ERROR - Writer error: 
+2025-12-24 20:29:32,902 - outtxt - ERROR - Writer error: 
+2025-12-24 20:29:33,902 - outtxt - ERROR - Writer error: 
+2025-12-24 20:29:34,903 - outtxt - ERROR - Writer error: 
+2025-12-24 20:29:35,522 - outtxt - INFO - Detected: person (0.82)
+2025-12-24 20:29:36,523 - outtxt - ERROR - Writer error: 
+2025-12-24 20:29:36,986 - outtxt - INFO - Detected: fire hydrant (0.72)
+2025-12-24 20:29:36,986 - outtxt - INFO - Detected: fire hydrant (0.67)
+2025-12-24 20:29:37,987 - outtxt - ERROR - Writer error: 

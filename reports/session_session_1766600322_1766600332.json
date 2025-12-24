@@ -1,0 +1,17 @@
+{
+  "session_id": "session_1766600322",
+  "start_time": "2025-12-24 20:18:51",
+  "duration_seconds": 8.033108234405518,
+  "total_frames": 98,
+  "average_fps": 12.199511962289948,
+  "confidence_avg": 0,
+  "total_detections": 0,
+  "object_distribution": {},
+  "confidence_stats": {
+    "average": 0,
+    "min": 0,
+    "max": 0,
+    "std": 0
+  },
+  "timeline": []
+}
