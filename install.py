@@ -1,6 +1,7 @@
 import subprocess
 import sys
 import os
+import time
 
 def check_and_install():
     """Check and install required packages"""
@@ -22,7 +23,11 @@ def check_and_install():
         'python-dotenv>=1.0.0',
         'sounddevice>=0.4.6',
         'boxmot>=10.0.0',
-        'pyyaml>=6.0'
+        'pyyaml>=6.0',
+        'matplotlib>=3.7.0',      # New: For graphs
+        'seaborn>=0.12.0',        # New: For graphs
+        'pandas>=2.0.0',          # New: For data analysis
+        'Pillow>=10.0.0'          # New: For image processing
     ]
     
     print("📦 Checking/installing required packages...")
@@ -43,10 +48,12 @@ def check_and_install():
     
     print("\n✅ Installation complete!")
     
-    # Create directories
+    # Create enhanced directories
     directories = [
-        'models', 'logs', 'voice_logs', 'reports', 'cache',
-        'exports/images', 'exports/videos',
+        'models', 'logs', 'voice_logs', 'reports',
+        'reports/plots', 'reports/sessions', 'reports/detector',
+        'reports/training', 'reports/knowledge_base', 'reports/tests',
+        'cache', 'exports', 'exports/screenshots', 'exports/videos',
         'datasets/train/images', 'datasets/train/labels',
         'datasets/val/images', 'datasets/val/labels',
         'datasets/test/images', 'datasets/test/labels'
@@ -66,13 +73,14 @@ def check_and_install():
         print(f"❌ Model download failed: {e}")
         print("   Model will download on first run")
     
-    # Create .env template
+    # Create enhanced .env template
     if not os.path.exists('.env'):
         with open('.env', 'w') as f:
-            f.write("""# JADE Configuration
+            f.write("""# JADE Enhanced Configuration
 
-# OpenAI API Key (Optional)
-OPENAI_API_KEY=your_key_here_optional
+# AI API Keys (Optional)
+OPENAI_API_KEY=your_openai_key_here_optional
+DEEPSEEK_API_KEY=your_deepseek_key_here_optional
 
 # Camera Settings
 # CAMERA_ID=0
@@ -80,16 +88,50 @@ OPENAI_API_KEY=your_key_here_optional
 # Voice Settings
 # WAKE_WORD=hey jade
 # VOICE_GENDER=female
+# SPEAKING_RATE=180
+
+# Display Settings
+# THEME=dark
+# ENHANCED_GUI=true
+# SHOW_PERFORMANCE_GRAPHS=true
+# SHOW_PERFORMANCE_OVERLAY=true
+
+# Performance Settings
+# TARGET_FPS=60
+# FRAME_SKIP=2
+# ENABLE_DEEP_ANALYSIS=true
 """)
-        print("📄 Created .env template")
+        print("📄 Created enhanced .env template")
     
     print("\n" + "="*60)
-    print("🚀 JADE Setup Complete!")
+    print("🚀 JADE Enhanced Setup Complete!")
     print("="*60)
-    print("\nTo start JADE:")
+    print("\n✨ ENHANCED FEATURES:")
+    print("  • Performance graphs and visualizations")
+    print("  • Modern dark theme GUI")
+    print("  • Session comparison dashboard")
+    print("  • Automatic report generation")
+    print("  • Enhanced object analysis")
+    
+    print("\n📊 PERFORMANCE VISUALIZATION:")
+    print("  • FPS trends and analysis")
+    print("  • Object detection statistics")
+    print("  • Confidence distribution")
+    print("  • Inference time monitoring")
+    print("  • Session comparison")
+    
+    print("\nTo start JADE Enhanced:")
     print("  python main.py")
+    
     print("\nFor testing:")
     print("  python test_voice.py")
+    
+    print("\nFor training custom models:")
+    print("  python train_jade.py --setup")
+    print("  python train_jade.py --train")
+    
+    print("\n📁 Reports will be saved to: reports/ directory")
+    print("📈 Graphs will be saved to: reports/plots/ directory")
     print("="*60)
 
 if __name__ == "__main__":

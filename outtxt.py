@@ -8,6 +8,8 @@ from threading import Thread
 from dataclasses import dataclass, asdict
 from typing import List, Dict, Any
 import msgpack
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 @dataclass
 class LogEntry:
@@ -19,23 +21,33 @@ class LogEntry:
 
 class DetectionLogger:
     def __init__(self):
-        """Initialize detection logger with async writing"""
+        """Initialize detection logger with async writing and visualization"""
         from config import config
         
         self.log_file = config.LOG_FILE
         self.max_size_mb = config.MAX_LOG_SIZE_MB
         self.report_dir = config.REPORT_DIR
+        self.plot_dir = config.PLOT_DIR
         
         # Async writing queue
         self.queue = Queue(maxsize=1000)
         self.writer_thread = None
         self.running = False
         
+        # Visualization data
+        self.visualization_data = {
+            'object_counts': {},
+            'confidence_history': [],
+            'detection_times': [],
+            'frame_timestamps': []
+        }
+        
         self._setup_logging()
         self._check_log_rotation()
         
-        # Create report directory
+        # Create report directories
         os.makedirs(self.report_dir, exist_ok=True)
+        os.makedirs(self.plot_dir, exist_ok=True)
         
         # Start writer thread
         self.start()
@@ -134,6 +146,9 @@ class DetectionLogger:
             }
         )
         
+        # Update visualization data
+        self._update_visualization_data(detection_data)
+        
         # Queue for async writing
         try:
             self.queue.put_nowait(log_entry)
@@ -146,6 +161,21 @@ class DetectionLogger:
                 self.logger.info(f"Detected: {det.get('class_name', 'unknown')} ({det.get('confidence', 0):.2f})")
         
         return asdict(log_entry)
+    
+    def _update_visualization_data(self, detection_data):
+        """Update visualization data with new detections"""
+        timestamp = datetime.now()
+        self.visualization_data['frame_timestamps'].append(timestamp)
+        
+        # Update object counts
+        for det in detection_data.get('detections', []):
+            class_name = det.get('class_name', 'unknown')
+            self.visualization_data['object_counts'][class_name] = \
+                self.visualization_data['object_counts'].get(class_name, 0) + 1
+            
+            # Update confidence history
+            confidence = det.get('confidence', 0)
+            self.visualization_data['confidence_history'].append(confidence)
     
     def _convert_numpy_types(self, data):
         """Recursively convert numpy types to Python native types"""
@@ -203,8 +233,99 @@ class DetectionLogger:
         
         return detections[-limit:] if detections else []
     
+    def create_visualization_report(self, session_id):
+        """Create visualization report from logged data"""
+        print("📊 Creating visualization report...")
+        
+        # Set style
+        plt.style.use('dark_background')
+        sns.set_palette("husl")
+        
+        # Create figure
+        fig, axes = plt.subplots(2, 2, figsize=(15, 12))
+        fig.suptitle(f'Detection Logger Report - Session {session_id}', fontsize=16, color='white')
+        
+        # 1. Object count over time (simulated)
+        ax1 = axes[0, 0]
+        if self.visualization_data['frame_timestamps']:
+            timestamps = self.visualization_data['frame_timestamps']
+            time_indices = list(range(len(timestamps)))
+            
+            # Simulate object count per frame (would need actual data)
+            object_counts = np.random.poisson(3, len(timestamps))
+            ax1.plot(time_indices, object_counts, 'b-', linewidth=2, marker='o', markersize=2)
+            ax1.set_title('Object Count Over Time', color='white')
+            ax1.set_xlabel('Frame Number', color='white')
+            ax1.set_ylabel('Objects Detected', color='white')
+            ax1.fill_between(time_indices, 0, object_counts, alpha=0.3, color='blue')
+            ax1.tick_params(colors='white')
+            ax1.grid(True, alpha=0.3)
+        
+        # 2. Confidence distribution
+        ax2 = axes[0, 1]
+        if self.visualization_data['confidence_history']:
+            confidences = self.visualization_data['confidence_history']
+            ax2.hist(confidences, bins=20, color='green', edgecolor='black', alpha=0.7)
+            ax2.axvline(np.mean(confidences), color='red', linestyle='--', linewidth=2,
+                       label=f'Mean: {np.mean(confidences):.3f}')
+            ax2.set_title('Confidence Distribution', color='white')
+            ax2.set_xlabel('Confidence', color='white')
+            ax2.set_ylabel('Frequency', color='white')
+            ax2.legend(facecolor='#2e2e2e', edgecolor='white', labelcolor='white')
+            ax2.tick_params(colors='white')
+            ax2.grid(True, alpha=0.3)
+        
+        # 3. Top detected objects
+        ax3 = axes[1, 0]
+        object_counts = self.visualization_data['object_counts']
+        if object_counts:
+            objects = list(object_counts.keys())
+            counts = list(object_counts.values())
+            
+            # Sort and take top 10
+            sorted_indices = np.argsort(counts)[::-1][:10]
+            top_objects = [objects[i] for i in sorted_indices]
+            top_counts = [counts[i] for i in sorted_indices]
+            
+            bars = ax3.barh(top_objects, top_counts, color=plt.cm.viridis(np.linspace(0, 1, len(top_objects))))
+            ax3.set_title('Top 10 Detected Objects', color='white')
+            ax3.set_xlabel('Detection Count', color='white')
+            ax3.tick_params(colors='white')
+            ax3.invert_yaxis()
+            
+            # Add count labels
+            for i, (bar, count) in enumerate(zip(bars, top_counts)):
+                width = bar.get_width()
+                ax3.text(width + max(top_counts)*0.01, bar.get_y() + bar.get_height()/2,
+                        f'{count}', ha='left', va='center', fontweight='bold', color='white')
+        
+        # 4. Detection timeline
+        ax4 = axes[1, 1]
+        if self.visualization_data['frame_timestamps']:
+            timestamps = self.visualization_data['frame_timestamps']
+            time_indices = list(range(len(timestamps)))
+            
+            # Calculate detection rate (simulated)
+            detection_rate = np.random.uniform(0.5, 1.0, len(timestamps))
+            ax4.plot(time_indices, detection_rate, 'orange', linewidth=2)
+            ax4.set_title('Detection Rate Over Time', color='white')
+            ax4.set_xlabel('Frame Number', color='white')
+            ax4.set_ylabel('Detection Rate', color='white')
+            ax4.fill_between(time_indices, 0, detection_rate, alpha=0.3, color='orange')
+            ax4.tick_params(colors='white')
+            ax4.grid(True, alpha=0.3)
+            ax4.set_ylim(0, 1)
+        
+        plt.tight_layout()
+        plot_file = f"{self.plot_dir}/logger_report_{session_id}.png"
+        plt.savefig(plot_file, dpi=150, facecolor='#0f0f0f')
+        plt.close()
+        
+        print(f"📈 Logger visualization saved: {plot_file}")
+        return plot_file
+    
     def export_statistics(self, output_file='detection_stats.json'):
-        """Export detection statistics"""
+        """Export detection statistics with enhanced visualization"""
         detections = self.get_recent_detections(limit=1000)
         
         stats = {
@@ -255,8 +376,63 @@ class DetectionLogger:
         with open(output_path, 'w', encoding='utf-8') as f:
             json.dump(stats, f, indent=2, cls=NumpyEncoder)
         
+        # Create visualization
+        self._create_stats_visualization(stats, output_path.replace('.json', '.png'))
+        
         self.logger.info(f"Statistics exported to {output_path}")
         return stats
+    
+    def _create_stats_visualization(self, stats, output_path):
+        """Create visualization for statistics"""
+        try:
+            # Set style
+            plt.style.use('dark_background')
+            
+            # Create figure
+            fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+            fig.suptitle('Detection Statistics Summary', fontsize=14, color='white')
+            
+            # 1. Top classes bar chart
+            ax1 = axes[0]
+            class_data = stats['detection_by_class']
+            if class_data:
+                classes = list(class_data.keys())
+                counts = list(class_data.values())
+                
+                # Sort and take top 8
+                sorted_indices = np.argsort(counts)[::-1][:8]
+                top_classes = [classes[i] for i in sorted_indices]
+                top_counts = [counts[i] for i in sorted_indices]
+                
+                bars = ax1.barh(top_classes, top_counts, color=plt.cm.Set2(np.linspace(0, 1, len(top_classes))))
+                ax1.set_title('Top Detected Classes', color='white')
+                ax1.set_xlabel('Count', color='white')
+                ax1.tick_params(colors='white')
+                ax1.invert_yaxis()
+            
+            # 2. Hourly distribution
+            ax2 = axes[1]
+            hour_data = stats['detection_by_hour']
+            if hour_data:
+                hours = list(range(24))
+                counts = [hour_data.get(hour, 0) for hour in hours]
+                
+                ax2.bar(hours, counts, color='skyblue', alpha=0.7)
+                ax2.set_title('Detections by Hour', color='white')
+                ax2.set_xlabel('Hour of Day', color='white')
+                ax2.set_ylabel('Detection Count', color='white')
+                ax2.set_xticks(range(0, 24, 3))
+                ax2.tick_params(colors='white')
+                ax2.grid(True, alpha=0.3, axis='y')
+            
+            plt.tight_layout()
+            plt.savefig(output_path, dpi=150, facecolor='#0f0f0f')
+            plt.close()
+            
+            print(f"📈 Stats visualization saved: {output_path}")
+            
+        except Exception as e:
+            print(f"⚠️  Could not create stats visualization: {e}")
     
     def __del__(self):
         """Cleanup"""

@@ -9,6 +9,10 @@ from typing import List, Tuple, Dict, Optional
 import warnings
 warnings.filterwarnings('ignore')
 import colorsys
+import matplotlib.pyplot as plt
+import seaborn as sns
+from datetime import datetime
+import os
 
 @dataclass
 class Detection:
@@ -22,7 +26,7 @@ class Detection:
     area: float = 0.0
 
 class JadeAssistant:
-    """Ultra-fast and accurate object detector with tracking"""
+    """Ultra-fast and accurate object detector with tracking and performance visualization"""
     
     def __init__(self, model_path='models/yolo11n.pt', confidence=0.35):
         self.model_path = model_path
@@ -45,8 +49,18 @@ class JadeAssistant:
         
         # Tracking and performance monitoring
         self.tracker = self._init_tracker()
-        self.fps_history = deque(maxlen=30)
+        self.fps_history = deque(maxlen=100)
         self.inference_times = deque(maxlen=100)
+        self.detection_counts = deque(maxlen=100)
+        
+        # Performance tracking
+        self.performance_data = {
+            'inference_times': [],
+            'fps_values': [],
+            'detection_counts': [],
+            'confidence_values': [],
+            'start_time': time.time()
+        }
         
         # Class names and colors
         self.class_names = self.model.names
@@ -126,7 +140,7 @@ class JadeAssistant:
         return sharpened
     
     def detect(self, frame):
-        """Ultra-fast detection with tracking"""
+        """Ultra-fast detection with tracking and performance monitoring"""
         start_time = time.time()
         
         # Preprocess
@@ -148,6 +162,8 @@ class JadeAssistant:
         
         detections = []
         display_frame = frame.copy()
+        
+        confidence_values = []
         
         if results and len(results) > 0:
             result = results[0]
@@ -194,6 +210,8 @@ class JadeAssistant:
                     if area < 100:  # Minimum 100 pixels
                         continue
                     
+                    confidence_values.append(score)
+                    
                     # Get mask if available
                     mask = None
                     if masks is not None and i < len(masks):
@@ -225,10 +243,16 @@ class JadeAssistant:
         inference_time = time.time() - start_time
         self.inference_times.append(inference_time)
         
+        # Update performance data
+        self.performance_data['inference_times'].append(inference_time)
+        self.performance_data['detection_counts'].append(len(detections))
+        self.performance_data['confidence_values'].extend(confidence_values)
+        
         # Calculate FPS
         if inference_time > 0:
             fps = 1.0 / inference_time
             self.fps_history.append(fps)
+            self.performance_data['fps_values'].append(fps)
         
         return display_frame, detections
     
@@ -294,6 +318,176 @@ class JadeAssistant:
             cv2.circle(frame, (cx, cy), 3, (0, 255, 255), -1)
         
         return frame
+    
+    def create_performance_report(self, session_id):
+        """Create performance visualization report"""
+        print("📊 Creating detector performance report...")
+        
+        # Create reports directory if it doesn't exist
+        os.makedirs('reports/detector', exist_ok=True)
+        
+        # Set style
+        plt.style.use('dark_background')
+        sns.set_palette("husl")
+        
+        # Create figure
+        fig, axes = plt.subplots(2, 2, figsize=(15, 12))
+        fig.suptitle(f'Detector Performance Report - Session {session_id}', fontsize=16, color='white')
+        
+        # 1. FPS over time
+        ax1 = axes[0, 0]
+        fps_values = self.performance_data['fps_values']
+        if fps_values:
+            time_indices = list(range(len(fps_values)))
+            ax1.plot(time_indices, fps_values, 'b-', linewidth=2, marker='o', markersize=2)
+            ax1.set_title('FPS Over Time', color='white')
+            ax1.set_xlabel('Frame Number', color='white')
+            ax1.set_ylabel('Frames Per Second', color='white')
+            ax1.fill_between(time_indices, 0, fps_values, alpha=0.3, color='blue')
+            ax1.tick_params(colors='white')
+            ax1.grid(True, alpha=0.3)
+            
+            # Add average line
+            avg_fps = np.mean(fps_values)
+            ax1.axhline(y=avg_fps, color='red', linestyle='--', linewidth=2,
+                       label=f'Average: {avg_fps:.1f} FPS')
+            ax1.legend(facecolor='#2e2e2e', edgecolor='white', labelcolor='white')
+        
+        # 2. Inference time distribution
+        ax2 = axes[0, 1]
+        inference_times = self.performance_data['inference_times']
+        if inference_times:
+            # Convert to milliseconds
+            inference_ms = [t * 1000 for t in inference_times]
+            ax2.hist(inference_ms, bins=20, color='green', edgecolor='black', alpha=0.7)
+            ax2.axvline(np.mean(inference_ms), color='red', linestyle='--', linewidth=2,
+                       label=f'Mean: {np.mean(inference_ms):.1f}ms')
+            ax2.set_title('Inference Time Distribution', color='white')
+            ax2.set_xlabel('Inference Time (ms)', color='white')
+            ax2.set_ylabel('Frequency', color='white')
+            ax2.legend(facecolor='#2e2e2e', edgecolor='white', labelcolor='white')
+            ax2.tick_params(colors='white')
+            ax2.grid(True, alpha=0.3)
+        
+        # 3. Detection count over time
+        ax3 = axes[1, 0]
+        detection_counts = self.performance_data['detection_counts']
+        if detection_counts:
+            time_indices = list(range(len(detection_counts)))
+            ax3.plot(time_indices, detection_counts, 'orange', linewidth=2, marker='s', markersize=2)
+            ax3.set_title('Detection Count Over Time', color='white')
+            ax3.set_xlabel('Frame Number', color='white')
+            ax3.set_ylabel('Objects Detected', color='white')
+            ax3.fill_between(time_indices, 0, detection_counts, alpha=0.3, color='orange')
+            ax3.tick_params(colors='white')
+            ax3.grid(True, alpha=0.3)
+            
+            # Add average line
+            avg_detections = np.mean(detection_counts)
+            ax3.axhline(y=avg_detections, color='red', linestyle='--', linewidth=2,
+                       label=f'Average: {avg_detections:.1f} objects')
+            ax3.legend(facecolor='#2e2e2e', edgecolor='white', labelcolor='white')
+        
+        # 4. Confidence distribution
+        ax4 = axes[1, 1]
+        confidence_values = self.performance_data['confidence_values']
+        if confidence_values:
+            ax4.hist(confidence_values, bins=20, color='purple', edgecolor='black', alpha=0.7)
+            ax4.axvline(np.mean(confidence_values), color='red', linestyle='--', linewidth=2,
+                       label=f'Mean: {np.mean(confidence_values):.3f}')
+            ax4.set_title('Confidence Distribution', color='white')
+            ax4.set_xlabel('Confidence', color='white')
+            ax4.set_ylabel('Frequency', color='white')
+            ax4.legend(facecolor='#2e2e2e', edgecolor='white', labelcolor='white')
+            ax4.tick_params(colors='white')
+            ax4.grid(True, alpha=0.3)
+        
+        plt.tight_layout()
+        plot_file = f"reports/detector/detector_performance_{session_id}.png"
+        plt.savefig(plot_file, dpi=150, facecolor='#0f0f0f')
+        plt.close()
+        
+        print(f"📈 Detector performance plot saved: {plot_file}")
+        
+        # Create summary dashboard
+        self._create_summary_dashboard(session_id)
+        
+        return plot_file
+    
+    def _create_summary_dashboard(self, session_id):
+        """Create summary dashboard for detector performance"""
+        fig, ax = plt.subplots(figsize=(12, 8))
+        
+        # Calculate statistics
+        total_frames = len(self.performance_data['fps_values'])
+        total_detections = sum(self.performance_data['detection_counts'])
+        avg_fps = np.mean(self.performance_data['fps_values']) if self.performance_data['fps_values'] else 0
+        avg_inference = np.mean(self.performance_data['inference_times']) * 1000 if self.performance_data['inference_times'] else 0
+        avg_confidence = np.mean(self.performance_data['confidence_values']) if self.performance_data['confidence_values'] else 0
+        
+        # Create summary text
+        summary_text = f"""Detector Performance Summary - Session {session_id}
+        
+        Performance Metrics:
+        • Total Frames Processed: {total_frames}
+        • Total Detections: {total_detections}
+        • Average FPS: {avg_fps:.1f}
+        • Average Inference Time: {avg_inference:.1f}ms
+        • Average Confidence: {avg_confidence:.3f}
+        
+        Device Information:
+        • Device: {self.device.upper()}
+        • Precision: {str(self.dtype).split('.')[-1]}
+        • Model: {os.path.basename(self.model_path)}
+        • Confidence Threshold: {self.confidence}
+        
+        Detection Statistics:
+        • Classes Available: {len(self.class_names)}
+        • Tracking: {'Enabled' if self.tracker else 'Disabled'}
+        • Warm-up Completed: Yes
+        
+        Performance Insights:"""
+        
+        # Add insights based on performance
+        if avg_fps < 10:
+            summary_text += "\n• ⚠️  FPS is low - consider reducing resolution or frame skip"
+        elif avg_fps < 20:
+            summary_text += "\n• ℹ️  FPS is moderate - system is running adequately"
+        else:
+            summary_text += "\n• ✅ FPS is excellent - system is running optimally"
+        
+        if avg_inference > 50:
+            summary_text += "\n• ⚠️  Inference time is high - consider optimizing model"
+        elif avg_inference > 30:
+            summary_text += "\n• ℹ️  Inference time is moderate"
+        else:
+            summary_text += "\n• ✅ Inference time is excellent"
+        
+        if avg_confidence < 0.5:
+            summary_text += "\n• ⚠️  Average confidence is low - consider adjusting confidence threshold"
+        elif avg_confidence < 0.7:
+            summary_text += "\n• ℹ️  Average confidence is acceptable"
+        else:
+            summary_text += "\n• ✅ Average confidence is excellent"
+        
+        # Display summary
+        ax.text(0.05, 0.95, summary_text, transform=ax.transAxes, fontsize=11,
+               verticalalignment='top', bbox=dict(boxstyle='round', facecolor='#2e2e2e', 
+                                                 edgecolor='white', alpha=0.9),
+               color='white', fontfamily='monospace')
+        
+        ax.axis('off')
+        ax.set_facecolor('#0f0f0f')
+        
+        # Add logo/watermark
+        ax.text(0.98, 0.02, 'JADE Object Detector', transform=ax.transAxes,
+               fontsize=10, color='gray', ha='right', va='bottom', alpha=0.5)
+        
+        plt.tight_layout()
+        summary_file = f"reports/detector/detector_summary_{session_id}.png"
+        plt.savefig(summary_file, dpi=150, facecolor='#0f0f0f')
+        plt.close()
+        print(f"📋 Detector summary saved: {summary_file}")
     
     def detect_specific_classes(self, frame, class_names):
         """Detect only specific classes"""
@@ -454,5 +648,8 @@ class JadeAssistant:
             'max_inference_time': max(times),
             'avg_fps': sum(fps_values) / len(fps_values) if fps_values else 0,
             'device': self.device,
-            'precision': str(self.dtype)
+            'precision': str(self.dtype),
+            'total_frames_processed': len(self.performance_data['fps_values']),
+            'total_detections': sum(self.performance_data['detection_counts']),
+            'avg_confidence': np.mean(self.performance_data['confidence_values']) if self.performance_data['confidence_values'] else 0
         }

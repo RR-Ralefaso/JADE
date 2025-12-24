@@ -3,6 +3,9 @@ import colorsys
 import cv2
 from typing import Dict, List, Tuple, Optional
 import os
+import matplotlib.pyplot as plt
+import seaborn as sns
+from datetime import datetime
 
 # Simple dictionary-based knowledge base (no pickle)
 ENHANCED_KNOWLEDGE = {
@@ -692,6 +695,107 @@ def format_comprehensive_assessment(assessment):
     
     return lines
 
+def create_performance_visualization(performance_data, session_id):
+    """Create performance visualization for the knowledge base"""
+    print("📊 Creating knowledge base performance visualization...")
+    
+    # Create reports directory if it doesn't exist
+    os.makedirs('reports/knowledge_base', exist_ok=True)
+    
+    # Set style
+    plt.style.use('dark_background')
+    sns.set_palette("husl")
+    
+    # Create figure
+    fig, axes = plt.subplots(2, 2, figsize=(15, 12))
+    fig.suptitle(f'Knowledge Base Performance - Session {session_id}', fontsize=16, color='white')
+    
+    # 1. Object frequency in knowledge base
+    ax1 = axes[0, 0]
+    object_counts = {obj: len(data) for obj, data in ENHANCED_KNOWLEDGE.items()}
+    objects = list(object_counts.keys())
+    counts = list(object_counts.values())
+    
+    # Sort and take top 15
+    sorted_indices = np.argsort(counts)[::-1][:15]
+    top_objects = [objects[i] for i in sorted_indices]
+    top_counts = [counts[i] for i in sorted_indices]
+    
+    bars = ax1.barh(top_objects, top_counts, color=plt.cm.viridis(np.linspace(0, 1, len(top_objects))))
+    ax1.set_title('Knowledge Base Coverage (Top 15)', color='white')
+    ax1.set_xlabel('Number of Attributes', color='white')
+    ax1.tick_params(colors='white')
+    ax1.invert_yaxis()
+    
+    # 2. Category distribution
+    ax2 = axes[0, 1]
+    categories = {}
+    for obj_data in ENHANCED_KNOWLEDGE.values():
+        category = obj_data.get('category', 'unknown')
+        categories[category] = categories.get(category, 0) + 1
+    
+    if categories:
+        cat_names = list(categories.keys())
+        cat_counts = list(categories.values())
+        colors = plt.cm.Set3(np.linspace(0, 1, len(cat_names)))
+        
+        wedges, texts, autotexts = ax2.pie(cat_counts, labels=cat_names, autopct='%1.1f%%',
+                                           startangle=90, colors=colors)
+        ax2.set_title('Object Categories', color='white')
+        
+        for text in texts:
+            text.set_color('white')
+            text.set_fontsize(9)
+        for autotext in autotexts:
+            autotext.set_color('white')
+            autotext.set_fontweight('bold')
+    
+    # 3. Value distribution
+    ax3 = axes[1, 0]
+    base_values = [data.get('base_value', 0) for data in ENHANCED_KNOWLEDGE.values()]
+    if base_values:
+        ax3.hist(base_values, bins=20, color='skyblue', edgecolor='black', alpha=0.7)
+        ax3.axvline(np.mean(base_values), color='red', linestyle='--', linewidth=2,
+                   label=f'Mean: ${np.mean(base_values):,.0f}')
+        ax3.set_title('Base Value Distribution', color='white')
+        ax3.set_xlabel('Base Value ($)', color='white')
+        ax3.set_ylabel('Frequency', color='white')
+        ax3.legend(facecolor='#2e2e2e', edgecolor='white', labelcolor='white')
+        ax3.tick_params(colors='white')
+        ax3.grid(True, alpha=0.3)
+    
+    # 4. Material frequency
+    ax4 = axes[1, 1]
+    material_freq = {}
+    for obj_data in ENHANCED_KNOWLEDGE.values():
+        materials = obj_data.get('materials', [])
+        for material in materials:
+            material_freq[material] = material_freq.get(material, 0) + 1
+    
+    if material_freq:
+        materials = list(material_freq.keys())
+        freqs = list(material_freq.values())
+        
+        # Sort and take top 10
+        sorted_indices = np.argsort(freqs)[::-1][:10]
+        top_materials = [materials[i] for i in sorted_indices]
+        top_freqs = [freqs[i] for i in sorted_indices]
+        
+        colors = plt.cm.coolwarm(np.linspace(0, 1, len(top_materials)))
+        bars = ax4.barh(top_materials, top_freqs, color=colors)
+        ax4.set_title('Top 10 Materials', color='white')
+        ax4.set_xlabel('Frequency', color='white')
+        ax4.tick_params(colors='white')
+        ax4.invert_yaxis()
+    
+    plt.tight_layout()
+    plot_file = f"reports/knowledge_base/kb_performance_{session_id}.png"
+    plt.savefig(plot_file, dpi=150, facecolor='#0f0f0f')
+    plt.close()
+    print(f"📈 Knowledge base performance plot saved: {plot_file}")
+    
+    return plot_file
+
 # Simple knowledge base interface for backward compatibility
 class SimpleKnowledgeBase:
     def __init__(self):
@@ -721,6 +825,10 @@ class SimpleKnowledgeBase:
             return f"${value/1_000:.1f}K"
         else:
             return f"${value:,.2f}"
+    
+    def create_performance_report(self, session_id):
+        """Create knowledge base performance report"""
+        return create_performance_visualization(self.objects, session_id)
 
 # Create global instance
 knowledge_base = SimpleKnowledgeBase()

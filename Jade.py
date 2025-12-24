@@ -8,7 +8,12 @@ from datetime import datetime
 from dataclasses import dataclass
 from typing import Optional, Dict, List
 import requests
-
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
+from datetime import datetime
+import cv2
+import os
 
 @dataclass
 class VoiceCommand:
@@ -17,18 +22,25 @@ class VoiceCommand:
     timestamp: float
 
 class JADEBaseAssistant:
-    """Enhanced JADE assistant with internet access and better analysis"""
+    """Enhanced JADE assistant with internet access, better analysis, and DeepSeek integration"""
     def __init__(self):
         self.current_mode = 'conversational'
         self.object_analysis_enabled = True
         self.conversation_context = []
         self.api_keys = {}
+        self.performance_data = {
+            'fps_history': [],
+            'timeline': [],
+            'object_distribution': {},
+            'all_confidences': [],
+            'confidence_by_class': {},
+            'detection_times': []
+        }
         
     def change_mode(self, mode):
         valid_modes = ['analysis', 'conversational', 'detection_only']
         if mode in valid_modes:
             self.current_mode = mode
-            # Store context
             self.conversation_context.append(f"Mode changed to {mode}")
             return f"Mode changed to {mode} mode"
         return f"Invalid mode. Available: {', '.join(valid_modes)}"
@@ -57,7 +69,6 @@ class JADEBaseAssistant:
     def get_online_suggestions(self, query):
         """Get online suggestions for objects"""
         try:
-            # Use DuckDuckGo Instant Answer API
             url = f"https://api.duckduckgo.com/?q={query}&format=json&pretty=1"
             response = requests.get(url, timeout=3)
             data = response.json()
@@ -78,6 +89,195 @@ class JADEBaseAssistant:
         except Exception as e:
             print(f"Online lookup error: {e}")
             return ["Unable to fetch online data at the moment."]
+    
+    def update_performance_data(self, detections, detection_time):
+        """Update performance tracking data"""
+        current_time = time.time()
+        
+        # Update timeline
+        timeline_entry = {
+            'timestamp': current_time,
+            'object_count': len(detections),
+            'inference_time': detection_time * 1000,
+            'confidence_avg': np.mean([d.get('confidence', 0) for d in detections]) if detections else 0
+        }
+        self.performance_data['timeline'].append(timeline_entry)
+        
+        # Update object distribution
+        for det in detections:
+            class_name = det.get('class_name', 'unknown')
+            self.performance_data['object_distribution'][class_name] = \
+                self.performance_data['object_distribution'].get(class_name, 0) + 1
+            
+            # Update confidence data
+            confidence = det.get('confidence', 0)
+            self.performance_data['all_confidences'].append(confidence)
+            
+            if class_name not in self.performance_data['confidence_by_class']:
+                self.performance_data['confidence_by_class'][class_name] = []
+            self.performance_data['confidence_by_class'][class_name].append(confidence)
+        
+        # Update detection times
+        self.performance_data['detection_times'].append(detection_time * 1000)
+    
+    def generate_performance_report(self, session_id, total_frames, duration_seconds):
+        """Generate performance report with graphs"""
+        print("📊 Generating performance report...")
+        
+        # Create reports directory if it doesn't exist
+        os.makedirs('reports', exist_ok=True)
+        os.makedirs('reports/plots', exist_ok=True)
+        
+        # Prepare session data
+        session_data = {
+            'session_id': session_id,
+            'start_time': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            'duration_seconds': duration_seconds,
+            'total_frames': total_frames,
+            'average_fps': total_frames / duration_seconds if duration_seconds > 0 else 0,
+            'confidence_avg': np.mean(self.performance_data['all_confidences']) if self.performance_data['all_confidences'] else 0,
+            'total_detections': sum(self.performance_data['object_distribution'].values()),
+            'object_distribution': self.performance_data['object_distribution'],
+            'confidence_stats': {
+                'average': np.mean(self.performance_data['all_confidences']) if self.performance_data['all_confidences'] else 0,
+                'min': np.min(self.performance_data['all_confidences']) if self.performance_data['all_confidences'] else 0,
+                'max': np.max(self.performance_data['all_confidences']) if self.performance_data['all_confidences'] else 0,
+                'std': np.std(self.performance_data['all_confidences']) if self.performance_data['all_confidences'] else 0
+            },
+            'timeline': self.performance_data['timeline'][-100:]  # Last 100 entries
+        }
+        
+        # Generate plots
+        self._create_performance_plots(session_data, session_id)
+        
+        # Save session data
+        report_file = f"reports/session_{session_id}_{int(time.time())}.json"
+        with open(report_file, 'w') as f:
+            json.dump(session_data, f, indent=2)
+        
+        print(f"✅ Performance report saved: {report_file}")
+        return report_file
+    
+    def _create_performance_plots(self, session_data, session_id):
+        """Create performance visualization plots"""
+        # Set style
+        plt.style.use('dark_background')
+        sns.set_palette("husl")
+        
+        # 1. Object Distribution Plot
+        fig, axes = plt.subplots(2, 2, figsize=(15, 12))
+        fig.suptitle(f'JADE Performance Report - Session {session_id}', fontsize=16, color='white')
+        
+        # Object distribution (bar chart)
+        ax1 = axes[0, 0]
+        object_dist = session_data['object_distribution']
+        if object_dist:
+            objects = list(object_dist.keys())
+            counts = list(object_dist.values())
+            
+            # Sort and take top 10
+            sorted_indices = np.argsort(counts)[::-1][:10]
+            top_objects = [objects[i] for i in sorted_indices]
+            top_counts = [counts[i] for i in sorted_indices]
+            
+            bars = ax1.barh(top_objects, top_counts, color=plt.cm.viridis(np.linspace(0, 1, len(top_objects))))
+            ax1.set_title('Top 10 Detected Objects', color='white')
+            ax1.set_xlabel('Detection Count', color='white')
+            ax1.tick_params(colors='white')
+            ax1.invert_yaxis()
+        
+        # Confidence distribution (histogram)
+        ax2 = axes[0, 1]
+        confidences = self.performance_data['all_confidences']
+        if confidences:
+            ax2.hist(confidences, bins=20, color='skyblue', edgecolor='black', alpha=0.7)
+            ax2.axvline(np.mean(confidences), color='red', linestyle='--', linewidth=2,
+                       label=f'Mean: {np.mean(confidences):.3f}')
+            ax2.set_title('Confidence Distribution', color='white')
+            ax2.set_xlabel('Confidence', color='white')
+            ax2.set_ylabel('Frequency', color='white')
+            ax2.legend(facecolor='#2e2e2e', edgecolor='white', labelcolor='white')
+            ax2.tick_params(colors='white')
+        
+        # Timeline - Object Count
+        ax3 = axes[1, 0]
+        timeline = session_data['timeline']
+        if timeline:
+            times = list(range(len(timeline)))
+            object_counts = [entry['object_count'] for entry in timeline]
+            ax3.plot(times, object_counts, 'g-', linewidth=2, marker='o', markersize=2)
+            ax3.set_title('Object Count Over Time', color='white')
+            ax3.set_xlabel('Time Index', color='white')
+            ax3.set_ylabel('Number of Objects', color='white')
+            ax3.fill_between(times, 0, object_counts, alpha=0.3, color='green')
+            ax3.tick_params(colors='white')
+            ax3.grid(True, alpha=0.3)
+        
+        # Timeline - Inference Time
+        ax4 = axes[1, 1]
+        if timeline:
+            inference_times = [entry['inference_time'] for entry in timeline]
+            ax4.plot(times, inference_times, 'r-', linewidth=2, marker='s', markersize=2)
+            ax4.set_title('Inference Time Over Time', color='white')
+            ax4.set_xlabel('Time Index', color='white')
+            ax4.set_ylabel('Inference Time (ms)', color='white')
+            ax4.fill_between(times, 0, inference_times, alpha=0.3, color='red')
+            ax4.tick_params(colors='white')
+            ax4.grid(True, alpha=0.3)
+        
+        plt.tight_layout()
+        plot_file = f"reports/plots/performance_{session_id}.png"
+        plt.savefig(plot_file, dpi=150, facecolor='#0f0f0f')
+        plt.close()
+        print(f"📈 Performance plot saved: {plot_file}")
+        
+        # 2. Create summary dashboard
+        self._create_summary_dashboard(session_data, session_id)
+    
+    def _create_summary_dashboard(self, session_data, session_id):
+        """Create summary dashboard"""
+        fig, ax = plt.subplots(figsize=(12, 8))
+        
+        # Create summary text
+        summary_text = f"""JADE Performance Summary - Session {session_id}
+        
+        Session Duration: {session_data['duration_seconds']:.1f} seconds
+        Total Frames Processed: {session_data['total_frames']}
+        Average FPS: {session_data['average_fps']:.1f}
+        
+        Detection Statistics:
+        • Total Detections: {session_data['total_detections']}
+        • Unique Object Types: {len(session_data['object_distribution'])}
+        • Average Confidence: {session_data['confidence_avg']:.3f}
+        • Confidence Range: {session_data['confidence_stats']['min']:.3f} - {session_data['confidence_stats']['max']:.3f}
+        
+        Top Objects Detected:"""
+        
+        # Add top objects
+        object_dist = session_data['object_distribution']
+        if object_dist:
+            sorted_objects = sorted(object_dist.items(), key=lambda x: x[1], reverse=True)[:5]
+            for obj, count in sorted_objects:
+                summary_text += f"\n• {obj}: {count} detections"
+        
+        # Display summary
+        ax.text(0.05, 0.95, summary_text, transform=ax.transAxes, fontsize=12,
+               verticalalignment='top', bbox=dict(boxstyle='round', facecolor='#2e2e2e', 
+                                                 edgecolor='white', alpha=0.9),
+               color='white', fontfamily='monospace')
+        
+        ax.axis('off')
+        ax.set_facecolor('#0f0f0f')
+        
+        # Add logo/watermark
+        ax.text(0.98, 0.02, 'JADE AI Analyzer', transform=ax.transAxes,
+               fontsize=10, color='gray', ha='right', va='bottom', alpha=0.5)
+        
+        plt.tight_layout()
+        dashboard_file = f"reports/plots/summary_{session_id}.png"
+        plt.savefig(dashboard_file, dpi=150, facecolor='#0f0f0f')
+        plt.close()
+        print(f"📋 Summary dashboard saved: {dashboard_file}")
     
     def chat(self, message, context=None):
         """Enhanced chat with context awareness"""
@@ -122,6 +322,17 @@ class JADEBaseAssistant:
         elif "date" in message_lower:
             current_date = datetime.now().strftime("%B %d, %Y")
             response = f"Today is {current_date}"
+        
+        elif "performance" in message_lower or "stats" in message_lower:
+            if self.performance_data['all_confidences']:
+                avg_conf = np.mean(self.performance_data['all_confidences'])
+                total_dets = sum(self.performance_data['object_distribution'].values())
+                response = f"Performance stats: {total_dets} detections with average confidence {avg_conf:.2f}. Say 'show graphs' to see visualizations."
+            else:
+                response = "No performance data collected yet. Start detecting objects to see statistics."
+        
+        elif "show graphs" in message_lower or "visualization" in message_lower:
+            response = "I can generate performance graphs at the end of the session. Continue using JADE to collect data, and graphs will be created when you exit."
         
         else:
             # For other queries, provide intelligent response
@@ -423,6 +634,12 @@ class JADEVoiceAssistant:
             self.speak(response)
             return response
         
+        # Performance/Stats commands
+        if "performance" in text or "stats" in text or "statistics" in text:
+            response = self.jade_assistant.chat(text)
+            self.speak(response)
+            return response
+        
         # Mode switching
         if "mode" in text:
             if "analysis" in text or "analyze" in text:
@@ -492,7 +709,7 @@ class JADEVoiceAssistant:
     def test_voice(self):
         """Test voice functionality"""
         print("🔊 Testing voice system...")
-        self.speak("Hello! I am JADE,I'm here to help you analyze objects and answer your questions.")
+        self.speak("Hello! I am JADE, I'm here to help you analyze objects and answer your questions.")
     
     def listen_once(self):
         """Listen for a single command (for keyboard shortcut)"""

@@ -6,9 +6,10 @@ load_dotenv()
 class Config:
     # API Configuration
     OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', '')
+    DEEPSEEK_API_KEY = os.getenv('DEEPSEEK_API_KEY', '')  # New: DeepSeek API
     
     # Camera Settings
-    CAMERA_ID = int(os.getenv('CAMERA_ID', '0'))
+    CAMERA_ID = 2 #int(os.getenv('CAMERA_ID', '0'))
     PREVIEW_WIDTH = 1280
     PREVIEW_HEIGHT = 720
     TARGET_FPS = 60 #30
@@ -38,11 +39,13 @@ class Config:
     # Analysis Settings
     ENABLE_DEEP_ANALYSIS = True
     ENABLE_REALTIME_TRACKING = True  # Disabled for better performance
+    ENABLE_PERFORMANCE_GRAPHS = True  # New: Enable performance graphs
     
     # Logging & Storage
     LOG_FILE = 'logs/detections.jsonl'
     MAX_LOG_SIZE_MB = 50
     REPORT_DIR = 'reports'
+    PLOT_DIR = 'reports/plots'  # New: Directory for plots
     
     # Display Settings
     SHOW_FPS = True
@@ -50,6 +53,8 @@ class Config:
     SHOW_TRACKING_IDS = True #disable for better performance
     SHOW_BOUNDING_BOXES = True
     THEME = "dark"
+    ENHANCED_GUI = True  # New: Use enhanced GUI
+    SHOW_PERFORMANCE_OVERLAY = True  # New: Show performance overlay
     
     @property
     def model_device(self):
@@ -77,6 +82,8 @@ def setup_directories():
         'logs',
         'voice_logs', 
         'reports',
+        'reports/plots',
+        'reports/training',
         'exports',
         'exports/images',
         'exports/videos',
@@ -103,15 +110,27 @@ def check_api_keys():
         print("⚠️  OpenAI API key not set or using placeholder")
         print("   Note: OpenAI API is optional for basic functionality")
         print("   Get key from: https://platform.openai.com/api-keys")
-        return False
     
-    # Check if key looks valid
+    # Check DeepSeek API key
+    if not config.DEEPSEEK_API_KEY or config.DEEPSEEK_API_KEY == 'your_deepseek_key_here_optional':
+        print("⚠️  DeepSeek API key not set or using placeholder")
+        print("   Note: DeepSeek API is optional for enhanced AI features")
+        print("   Get key from: https://platform.deepseek.com")
+    
+    # Check if at least one AI key looks valid
+    valid_keys = False
     if config.OPENAI_API_KEY.startswith('sk-') and len(config.OPENAI_API_KEY) > 30:
         print("✅ OpenAI API key found")
-        return True
-    else:
-        print("⚠️  OpenAI API key format looks invalid")
-        return False
+        valid_keys = True
+    
+    if config.DEEPSEEK_API_KEY.startswith('sk-') and len(config.DEEPSEEK_API_KEY) > 30:
+        print("✅ DeepSeek API key found")
+        valid_keys = True
+    
+    if not valid_keys:
+        print("⚠️  No valid AI API keys found - some features will be limited")
+    
+    return valid_keys
 
 def check_dependencies():
     """Check if all required dependencies are installed"""
@@ -125,6 +144,8 @@ def check_dependencies():
         ('pyaudio', 'pyaudio'),
         ('python-dotenv', 'dotenv'),
         ('requests', 'requests'),
+        ('matplotlib', 'matplotlib'),  # New: For graphs
+        ('seaborn', 'seaborn'),        # New: For graphs
     ]
     
     print("📦 Checking dependencies...")
@@ -247,6 +268,8 @@ def initialize_system():
     print(f"   API Keys: {'✅ Found' if api_ok else '⚠️  Missing (optional)'}")
     print(f"   Camera: {'✅ Found' if camera_ok else '❌ Not found'}")
     print(f"   Model: {'✅ Found' if model_ok else '⚠️  Will download on first run'}")
+    print(f"   Enhanced Features: {'✅ Enabled' if config.ENHANCED_GUI else '❌ Disabled'}")
+    print(f"   Performance Graphs: {'✅ Enabled' if config.ENABLE_PERFORMANCE_GRAPHS else '❌ Disabled'}")
     
     return camera_ok or deps_ok  # Return True if either camera or dependencies are OK
 
@@ -262,15 +285,25 @@ if __name__ == "__main__":
         print(f"   Confidence: {config.CONFIDENCE}")
         print(f"   Voice: {config.VOICE_GENDER} at {config.SPEAKING_RATE} WPM")
         print(f"   Wake Word: '{config.WAKE_WORD}'")
+        print(f"   Enhanced GUI: {'Yes' if config.ENHANCED_GUI else 'No'}")
+        print(f"   Performance Graphs: {'Yes' if config.ENABLE_PERFORMANCE_GRAPHS else 'No'}")
         
         print("\n🚀 To start JADE:")
         print("   python main.py")
         
-        print("\n🎤 Voice Commands (Continuous Listening):")
+        print("\n🎤 Enhanced Voice Commands:")
         print("   • 'Hey jade' - Wake phrase")
-        print("   • 'Analyze object' - Analyze current view")
-        print("   • 'What do you see' - Describe scene")
-        print("   • Speak naturally - I'm always listening")
+        print("   • 'Show performance' - Display statistics")
+        print("   • 'Generate graphs' - Create performance visualizations")
+        print("   • 'Analyze everything' - Deep analysis")
+        print("   • 'Describe scene' - Get AI description")
+        
+        print("\n📊 Performance Features:")
+        print("   • Real-time FPS tracking")
+        print("   • Object detection statistics")
+        print("   • Confidence analysis")
+        print("   • Session comparison")
+        print("   • Automatic report generation")
     else:
         print("\n❌ INITIALIZATION FAILED")
         print("   Please fix the issues above and try again")
@@ -281,6 +314,7 @@ if __name__ == "__main__":
 LOG_FILE = config.LOG_FILE
 MAX_LOG_SIZE_MB = config.MAX_LOG_SIZE_MB
 OPENAI_API_KEY = config.OPENAI_API_KEY
+DEEPSEEK_API_KEY = config.DEEPSEEK_API_KEY  # New
 WAKE_WORD = config.WAKE_WORD
 VOICE_GENDER = config.VOICE_GENDER
 SPEAKING_RATE = config.SPEAKING_RATE
@@ -300,7 +334,13 @@ AGNOSTIC_NMS = config.AGNOSTIC_NMS
 # Analysis settings
 ENABLE_DEEP_ANALYSIS = config.ENABLE_DEEP_ANALYSIS
 ENABLE_REALTIME_TRACKING = config.ENABLE_REALTIME_TRACKING
+ENABLE_PERFORMANCE_GRAPHS = config.ENABLE_PERFORMANCE_GRAPHS  # New
 REPORT_DIR = config.REPORT_DIR
+PLOT_DIR = config.PLOT_DIR  # New
+
+# GUI settings
+ENHANCED_GUI = config.ENHANCED_GUI  # New
+SHOW_PERFORMANCE_OVERLAY = config.SHOW_PERFORMANCE_OVERLAY  # New
 
 # Voice Settings dictionary
 VOICE_SETTINGS = {

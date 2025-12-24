@@ -1,0 +1,70 @@
+{
+  "session_id": "session_1766599765",
+  "start_time": "2025-12-24 20:09:47",
+  "duration_seconds": 21.04714274406433,
+  "total_frames": 222,
+  "average_fps": 10.547750005763037,
+  "confidence_avg": 0.6643380045890808,
+  "total_detections": 10,
+  "object_distribution": {
+    "person": 6,
+    "clock": 2,
+    "fire hydrant": 2
+  },
+  "confidence_stats": {
+    "average": 0.6643380045890808,
+    "min": 0.5060240030288696,
+    "max": 0.8588869571685791,
+    "std": 0.12587105709087187
+  },
+  "timeline": [
+    {
+      "timestamp": 1766599767.7491848,
+      "object_count": 1,
+      "inference_time": 101.38106346130371,
+      "confidence_avg": 0.7771300077438354
+    },
+    {
+      "timestamp": 1766599771.2830205,
+      "object_count": 1,
+      "inference_time": 98.4642505645752,
+      "confidence_avg": 0.7060893177986145
+    },
+    {
+      "timestamp": 1766599774.3451977,
+      "object_count": 1,
+      "inference_time": 81.71629905700684,
+      "confidence_avg": 0.5060240030288696
+    },
+    {
+      "timestamp": 1766599777.3678372,
+      "object_count": 2,
+      "inference_time": 76.34592056274414,
+      "confidence_avg": 0.6977035105228424
+    },
+    {
+      "timestamp": 1766599778.2313652,
+      "object_count": 2,
+      "inference_time": 76.34592056274414,
+      "confidence_avg": 0.6977035105228424
+    },
+    {
+      "timestamp": 1766599780.4536555,
+      "object_count": 1,
+      "inference_time": 72.13497161865234,
+      "confidence_avg": 0.5651111006736755
+    },
+    {
+      "timestamp": 1766599783.7874727,
+      "object_count": 1,
+      "inference_time": 78.8869857788086,
+      "confidence_avg": 0.6385408043861389
+    },
+    {
+      "timestamp": 1766599786.8202667,
+      "object_count": 1,
+      "inference_time": 76.07460021972656,
+      "confidence_avg": 0.6596707701683044
+    }
+  ]
+}
