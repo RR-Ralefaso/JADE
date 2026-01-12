@@ -15,7 +15,11 @@ source code can be modified and distributed just give everyone who contributed c
     - jade should be able to get trained by user through the GUI
 
 # Author : 
-    - Rothang Ralph Ralefaso (polaris)
-    - rrothang@gmail.com
+    - RR-Ralefaso (polaris)
+    - rrralefaso@outlook.com
+
+# note :
+    feel free to use the api key used =)
+
     
     
