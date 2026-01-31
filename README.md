@@ -1,25 +1,41 @@
-# JADE
-JADE is a smart AI assistant that combines image recognition, voice commands, and hand gestures to interact with its environment. It can identify objects, provide real-time insights, and perform tasks through simple voice or gesture inputs, making it a seamless and intuitive AI companion.
-source code can be modified and distributed just give everyone who contributed credit :)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/RR-Ralefaso/JADE/main/JADE.jpeg" alt="JADE AI Logo" width="500">
+</p>
 
-# status : 
-    -  incomplete
-    -  GUI only for developer (future goal is to make it for the user and easy to use)
-    -  writes a report about what was detected and that condition or status of the object eg. person - male/female , heigth ,health  condition
+# JADE (Joint Artificial Digital Entity)
 
-# aim :
-    - future versions of jade would be able to help detect any problems with primary user if needed and advice and or call for help
-    - Jade would be used as a security system that can used to set a parameter and keep you as safe as possible .jade would also serve as a task automation tool and a personal offline  assisstant whose information is only up to date to the most current version 
+**JADE** is a smart AI assistant that combines **image recognition**, **voice commands**, and **hand gestures** to interact with its environment. It identifies objects, provides real-time insights, and performs tasks through seamless, intuitive inputs.
 
-    -  jade should be able to be personlaised by the user even without coding experince
-    -  jade should be able to get trained by user through the GUI
+---
 
-# Author : 
-    - RR-Ralefaso (polaris)
-    - rrralefaso@outlook.com
+## 🛠 Project Status
+* **Status:** Incomplete / In Development
+* **Interface:** Current GUI is developer-focused (Future goal: User-friendly consumer GUI).
+* **Reporting:** Currently generates reports on detected objects including status details (e.g., Person: gender, height, health condition).
 
-# note :
-    feel free to use the api key used =)
+---
 
-    
-    
+## 🚀 The Vision (Project Goals)
+
+* **Personal Health & Safety:** Future versions will detect issues with the primary user and offer advice or call for emergency help.
+* **Smart Security:** A perimeter-based security system designed to keep the user safe.
+* **Offline Assistant:** A task automation tool that works locally to ensure privacy and speed.
+* **No-Code Customization:** Users should be able to personalize and train JADE directly through the GUI without needing to write code.
+
+---
+
+## 📄 License & Contribution
+The source code can be modified and distributed freely. 
+**Requirement:** Please provide credit to all contributors.
+
+> [!TIP]
+> **Developer Note:** Feel free to use the included API key for testing purposes!
+
+---
+
+## Author
+* **RR-Ralefaso (Polaris)**
+* **Email:** [rrralefaso@outlook.com](mailto:rrralefaso@outlook.com)
+
+---
+*Built for the future of intuitive AI interaction.*
