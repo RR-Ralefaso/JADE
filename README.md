@@ -29,11 +29,12 @@ The source code can be modified and distributed freely.
 **Requirement:** Please provide credit to all contributors.
 
 ## Running jade 
-  - git clone https://github.com/RR-Ralefaso/JADE.git
-  - cd JADE
-  - python install.py #installs dependencies
-  - python main.py #runs jade
-  - #jade when installing dependencies itll show how to train jade and test her modules
+  
+    - git clone https://github.com/RR-Ralefaso/JADE.git
+    - cd JADE
+    - python install.py #installs dependencies
+    - python main.py #runs jade
+    - #jade when installing dependencies itll show how to train jade and test her modules
 
 > [!TIP]
 > **Developer Note:** Feel free to use the included API key for testing purposes!
